@@ -1,0 +1,60 @@
+# Label for this particular deployed instance
+# Results in a name like "osdf-origin-public-[Instance]"
+Instance: ""
+
+Topology:
+  ResourceName: "TestOrigin"
+  FQDN: "testorigin.example.net"
+
+# TODO handle multiple exports somehow
+# TODO I should separate exports from volumes
+PublicExports:
+  MainExport:
+    Namespace: "/VONAME/PUBLIC"
+    DataVolume: NAME_OF_ORIGIN_PVC
+  # ExtraExports:
+  #   - Name: export1
+  #     Namespace: "/export1"
+  #     DataVolume: NAME_OF_EXPORT1_PVC
+  #   - Name: export2
+  #     Namespace: "/export2"
+  #     DataVolume: NAME_OF_EXPORT2_PVC
+
+# AuthExports:
+#   MainExport:
+#     Namespace: "/VONAME/PROTECTED"
+#     DataVolume: NAME_OF_ORIGIN_PVC
+#   # ExtraExports
+#   #   - Name: export1
+#   #     Namespace: "/export1"
+#   #     DataVolume: NAME_OF_EXPORT1_PVC
+
+# Host Certificate and Key
+# TODO Implement Let's Encrypt support
+# The keys contained in the secret must be:
+#    tls.crt
+#    tls.key
+# run 'slate secret create --help' for usage
+# Leaving this empty will disable reporting to the central collector.
+HostCredentials:
+  # Name of the secret containing a host key and certificate in
+  # "tls.key" and "tls.crt", respectively.
+  HostCertKeySecret: null
+
+Resources:
+  CPU: 2
+  Memory: 1Gi
+
+Containers:
+  Origin:
+    # "docker.io" and "hub.opensciencegrid.org" are the allowed registries.
+    Registry: "hub.opensciencegrid.org"
+    # The tag to pull; the image is "opensciencegrid/stash-origin"
+    Tag: 3.6-release
+    ImagePullPolicy: Always
+
+### SLATE-START ###
+SLATE:
+  Instance:
+    ID: "untagged"
+### SLATE-END ###

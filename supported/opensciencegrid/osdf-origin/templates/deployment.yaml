@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "osdf-origin-public.fullname" . }}
+  labels:
+    app: {{ template "osdf-origin-public.name" . }}
+    release: {{ .Release.Name }}
+    instance: {{ .Values.Instance | quote }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ template "osdf-origin-public.name" . }}
+      release: {{ .Release.Name }}
+      instance: {{ .Values.Instance | quote }}
+
+  template:
+    metadata:
+      labels:
+        app: {{ template "osdf-origin-public.name" . }}
+        release: {{ .Release.Name }}
+        instance: {{ .Values.Instance | quote }}
+
+    spec:
+      volumes:
+      - name: xcache-namespace
+        persistentVolumeClaim:
+          claimName: {{ .Values.PublicExports.MainExport.DataVolume }}
+      {{ if .Values.PublicExports.ExtraExports }}
+      {{- range .Values.PublicExports.ExtraExports }}
+      - name: {{ .Name }}
+        persistentVolumeClaim:
+          claimName: {{ .DataVolume }}
+      {{- end }}
+      {{ end }}
+      {{ if .Values.AuthExports.ExtraExports }}
+      {{- range .Values.AuthExports.ExtraExports }}
+      - name: {{ .Name }}
+        persistentVolumeClaim:
+          claimName: {{ .DataVolume }}
+      {{- end }}
+      {{ end }}
+
+      {{ if .Values.HostCredentials.HostCertKeySecret }}
+      - name: hostcertkey
+        secret:
+          secretName: {{ .Values.HostCredentials.HostCertKeySecret }}
+          items:
+          - key: tls.crt
+            path: hostcert.pem
+            mode: 0o644
+          - key: tls.key
+            path: hostkey.pem
+            mode: 0o400
+      {{ end }}
+
+      containers:
+        - name: origin
+        {{ if or (empty .Values.Containers.Origin.Registry) (eq .Values.Containers.Origin.Registry "hub.opensciencegrid.org") }}
+          image: "hub.opensciencegrid.org/opensciencegrid/stash-origin:{{ .Values.Containers.Origin.Tag }}"
+        {{ else if eq .Values.Containers.Origin.Registry "docker.io" }}
+          image: "docker.io/opensciencegrid/stash-origin:{{ .Values.Containers.Origin.Tag }}"
+        {{ else }}
+          {{ fail "Only the 'hub.opensciencegrid.org' and 'docker.io' container registries are allowed" }}
+        {{ end }}
+          imagePullPolicy: {{ .Values.Containers.Origin.ImagePullPolicy }}
+          env:
+          - name: XC_RESOURCENAME
+            value: "{{ .Values.Topology.ResourceName }}"
+          - name: ORIGIN_FQDN
+            value: "{{ .Values.Topology.FQDN }}"
+          - name: XC_ROOTDIR
+            value: "/xcache/namespace"
+        {{ if .Values.PublicExports.MainExport.Namespace }}
+          - name: XC_PUBLIC_ORIGIN_EXPORT
+            value: "{{ .Values.PublicExports.MainExport.Namespace }}"
+          # for image versions that don't support XC_PUBLIC_ORIGIN_EXPORT
+          - name: XC_ORIGINEXPORT
+            value: "{{ .Values.PublicExports.MainExport.Namespace }}"
+        {{ end }}
+        {{ if .Values.AuthExports.MainExport.Namespace }}
+          - name: XC_AUTH_ORIGIN_EXPORT
+            value: "{{ .Values.AuthExports.MainExport.Namespace }}"
+        {{ end }}
+
+          resources:
+            requests:
+              cpu: "{{ .Values.Resources.CPU }}"
+              memory: "{{ .Values.Resources.Memory }}"
+            limits:
+              cpu: "{{ .Values.Resources.CPU }}"
+              memory: "{{ .Values.Resources.Memory }}"
+          livenessProbe:
+            tcpSocket:
+              port: 1094
+            initialDelaySeconds: 600
+            periodSeconds: 60
+          ports:
+            - containerPort: 1094
+              hostPort: 1094
+              protocol: TCP
+          volumeMounts:
+          # TODO Handle multiple exports
+            - mountPath: /xcache/namespace
+              name: xcache-namespace
+            {{ if .Values.HostCredentials.HostCertKeySecret }}
+            - mountPath: /etc/grid-security/hostcert.pem
+              name: hostcertkey
+              subPath: tls.crt
+            - mountPath: /etc/grid-security/hostkey.pem
+              name: hostcertkey
+              subPath: tls.key
+            {{ end }}
