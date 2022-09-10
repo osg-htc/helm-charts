@@ -1,29 +1,22 @@
-{{ if .Values.Origin.ExtraExports }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "osdf-origin-public.fullname" . }}
+  name: {{ template "osdf-origin.fullname" . }}
   labels:
-    app: {{ template "osdf-origin-public.name" . }}
+    app: {{ template "osdf-origin.name" . }}
     release: {{ .Release.Name }}
     instance: {{ .Values.Instance | quote }}
 data:
-  extra_exports_cfg: |-
-    {{ if .Values.PublicExports.ExtraExports -}}
+  # The first public or auth origin export is declared in the environment;
+  # the rest are in a config file.
+  extra_exports.cfg: |-
     if named stash-origin
-    {{ range .Values.PublicExports.ExtraExports -}}
-    {{ printf "  # Extra export %s, volume %s" .Name .DataVolume }}
-    {{ printf "  all.export %s\n" .Namespace }}
+    {{ range (rest .Values.PublicOrigin.Exports) -}}
+      all.export {{ . }}
     {{ end }}
     fi
-    {{ end }}
-    {{ if .Values.AuthExports.ExtraExports -}}
     if named stash-origin-auth
-    {{ range .Values.AuthExports.ExtraExports -}}
-    {{ printf "  # Extra export %s, volume %s" .Name .DataVolume }}
-    {{ printf "  all.export %s\n" .Namespace }}
+    {{ range (rest .Values.AuthOrigin.Exports) -}}
+      all.export {{ . }}
     {{ end }}
     fi
-    {{ end }}
-{{ end }}
-

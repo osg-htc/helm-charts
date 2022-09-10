@@ -1,39 +1,34 @@
 # Label for this particular deployed instance
-# Results in a name like "osdf-origin-public-[Instance]"
+# Results in a name like "osdf-origin-[Instance]"
 Instance: ""
 
 Topology:
   ResourceName: "TestOrigin"
   FQDN: "testorigin.example.net"
 
-# TODO handle multiple exports somehow
-# TODO I should separate exports from volumes
-PublicExports:
-  MainExport:
-    Namespace: "/VONAME/PUBLIC"
-    DataVolume: NAME_OF_ORIGIN_PVC
-  # ExtraExports:
-  #   - Name: export1
-  #     Namespace: "/export1"
-  #     DataVolume: NAME_OF_EXPORT1_PVC
-  #   - Name: export2
-  #     Namespace: "/export2"
-  #     DataVolume: NAME_OF_EXPORT2_PVC
+PublicOrigin:
+  Enabled: true
+  # All exports are relative to /xcache/namespace
+  Exports:
+    - "/VONAME/PUBLIC"
+    #- "/publicexport2"
+    #- "/publicexport3"
+    
+AuthOrigin:
+  Enabled: false
+  # All exports are relative to /xcache/namespace
+  Exports:
+    - "/VONAME/PROTECTED"
+    #- "/authexport2"
+    #- "/authexport3"
 
-# AuthExports:
-#   MainExport:
-#     Namespace: "/VONAME/PROTECTED"
-#     DataVolume: NAME_OF_ORIGIN_PVC
-#   # ExtraExports
-#   #   - Name: export1
-#   #     Namespace: "/export1"
-#   #     DataVolume: NAME_OF_EXPORT1_PVC
+DataVolumes:
+  # All MountPaths are relative to /xcache/namespace
+  - Name: "xcache-namespace"
+    MountPath: "/"
+    ClaimName: "osdf-origin-data"
 
 # Host Certificate and Key
-# TODO Implement Let's Encrypt support
-# The keys contained in the secret must be:
-#    tls.crt
-#    tls.key
 # run 'slate secret create --help' for usage
 # Leaving this empty will disable reporting to the central collector.
 HostCredentials:

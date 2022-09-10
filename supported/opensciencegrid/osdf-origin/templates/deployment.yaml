@@ -1,47 +1,35 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "osdf-origin-public.fullname" . }}
+  name: {{ template "osdf-origin.fullname" . }}
   labels:
-    app: {{ template "osdf-origin-public.name" . }}
+    app: {{ template "osdf-origin.name" . }}
     release: {{ .Release.Name }}
     instance: {{ .Values.Instance | quote }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ template "osdf-origin-public.name" . }}
+      app: {{ template "osdf-origin.name" . }}
       release: {{ .Release.Name }}
       instance: {{ .Values.Instance | quote }}
 
   template:
     metadata:
       labels:
-        app: {{ template "osdf-origin-public.name" . }}
+        app: {{ template "osdf-origin.name" . }}
         release: {{ .Release.Name }}
         instance: {{ .Values.Instance | quote }}
 
     spec:
       volumes:
-      - name: xcache-namespace
-        persistentVolumeClaim:
-          claimName: {{ .Values.PublicExports.MainExport.DataVolume }}
-      {{ if .Values.PublicExports.ExtraExports }}
-      {{- range .Values.PublicExports.ExtraExports }}
+      {{- range .Values.DataVolumes }}
       - name: {{ .Name }}
         persistentVolumeClaim:
-          claimName: {{ .DataVolume }}
+          claimName: {{ .ClaimName }}
       {{- end }}
-      {{ end }}
-      {{ if .Values.AuthExports.ExtraExports }}
-      {{- range .Values.AuthExports.ExtraExports }}
-      - name: {{ .Name }}
-        persistentVolumeClaim:
-          claimName: {{ .DataVolume }}
-      {{- end }}
-      {{ end }}
 
-      {{ if .Values.HostCredentials.HostCertKeySecret }}
+      {{- if .Values.HostCredentials.HostCertKeySecret }}
       - name: hostcertkey
         secret:
           secretName: {{ .Values.HostCredentials.HostCertKeySecret }}
@@ -52,17 +40,20 @@ spec:
           - key: tls.key
             path: hostkey.pem
             mode: 0o400
-      {{ end }}
+      {{- end }}
+      - name: extra-exports-cfg
+        configMap:
+          name: {{ template "osdf-origin.fullname" . }}
 
       containers:
         - name: origin
-        {{ if or (empty .Values.Containers.Origin.Registry) (eq .Values.Containers.Origin.Registry "hub.opensciencegrid.org") }}
+        {{- if or (empty .Values.Containers.Origin.Registry) (eq .Values.Containers.Origin.Registry "hub.opensciencegrid.org") }}
           image: "hub.opensciencegrid.org/opensciencegrid/stash-origin:{{ .Values.Containers.Origin.Tag }}"
-        {{ else if eq .Values.Containers.Origin.Registry "docker.io" }}
+        {{- else if eq .Values.Containers.Origin.Registry "docker.io" }}
           image: "docker.io/opensciencegrid/stash-origin:{{ .Values.Containers.Origin.Tag }}"
-        {{ else }}
+        {{- else }}
           {{ fail "Only the 'hub.opensciencegrid.org' and 'docker.io' container registries are allowed" }}
-        {{ end }}
+        {{- end }}
           imagePullPolicy: {{ .Values.Containers.Origin.ImagePullPolicy }}
           env:
           - name: XC_RESOURCENAME
@@ -71,17 +62,17 @@ spec:
             value: "{{ .Values.Topology.FQDN }}"
           - name: XC_ROOTDIR
             value: "/xcache/namespace"
-        {{ if .Values.PublicExports.MainExport.Namespace }}
+        {{- if .Values.PublicOrigin.Exports }}
           - name: XC_PUBLIC_ORIGIN_EXPORT
-            value: "{{ .Values.PublicExports.MainExport.Namespace }}"
+            value: "{{ first .Values.PublicOrigin.Exports }}"
           # for image versions that don't support XC_PUBLIC_ORIGIN_EXPORT
           - name: XC_ORIGINEXPORT
-            value: "{{ .Values.PublicExports.MainExport.Namespace }}"
-        {{ end }}
-        {{ if .Values.AuthExports.MainExport.Namespace }}
+            value: "{{ first .Values.PublicOrigin.Exports }}"
+        {{- end }}
+        {{- if .Values.AuthOrigin.Exports }}
           - name: XC_AUTH_ORIGIN_EXPORT
-            value: "{{ .Values.AuthExports.MainExport.Namespace }}"
-        {{ end }}
+            value: "{{ first .Values.AuthOrigin.Exports }}"
+        {{- end }}
 
           resources:
             requests:
@@ -92,18 +83,30 @@ spec:
               memory: "{{ .Values.Resources.Memory }}"
           livenessProbe:
             tcpSocket:
+              {{- if .Values.AuthOrigin.Enabled }}
+              port: 1095
+              {{- else if .Values.PublicOrigin.Enabled }}
               port: 1094
+              {{- end }}
             initialDelaySeconds: 600
             periodSeconds: 60
           ports:
+            {{- if .Values.AuthOrigin.Enabled }}
+            - containerPort: 1095
+              hostPort: 1095
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.PublicOrigin.Enabled }}
             - containerPort: 1094
               hostPort: 1094
               protocol: TCP
+            {{- end }}
           volumeMounts:
-          # TODO Handle multiple exports
-            - mountPath: /xcache/namespace
-              name: xcache-namespace
-            {{ if .Values.HostCredentials.HostCertKeySecret }}
+            {{- range .Values.DataVolumes }}
+            - mountPath: /xcache/namespace{{ .MountPath }}
+              name: {{ .Name }}
+            {{ end }}
+            {{- if .Values.HostCredentials.HostCertKeySecret }}
             - mountPath: /etc/grid-security/hostcert.pem
               name: hostcertkey
               subPath: tls.crt
@@ -111,3 +114,6 @@ spec:
               name: hostcertkey
               subPath: tls.key
             {{ end }}
+            - mountPath: /etc/xrootd/config.d/extra_exports.cfg
+              name: extra-exports-cfg
+              subPath: extra_exports.cfg
