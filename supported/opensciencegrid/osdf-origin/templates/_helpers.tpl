@@ -1,4 +1,4 @@
-{{/* vim: set filetype=mustache: */}}
+{{/* vim: set filetype=mustache:et:sw=2:sts=2 */}}
 {{/*
 Expand the name of the chart.
 */}}
@@ -29,5 +29,34 @@ Create chart name and version as used by the chart label.
 */}}
 {{- define "osdf-origin.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Check Containers.Origin.Registry -- only specific ones are allowed.
+Use "hub.opensciencegrid.org" as the default.
+*/}}
+{{- define "osdf-origin.origin-registry" -}}
+  {{- if or (empty .Values.Containers.Origin.Registry) (eq .Values.Containers.Origin.Registry "hub.opensciencegrid.org") -}}
+    hub.opensciencegrid.org
+  {{- else if eq .Values.Containers.Origin.Registry "docker.io" -}}
+    docker.io
+  {{- else -}}
+    {{- fail "Only the 'hub.opensciencegrid.org' and 'docker.io' container registries are allowed" -}}
+  {{- end -}}
+{{- end -}}
+
+
+{{/*
+Check Containers.Origin.Organization -- only specific ones are allowed.
+Use "opensciencegrid" as the default.
+*/}}
+{{- define "osdf-origin.origin-organization" -}}
+  {{- if or (empty .Values.Containers.Origin.Organization) (eq .Values.Containers.Origin.Organization "opensciencegrid") -}}
+    opensciencegrid
+  {{- else if eq .Values.Containers.Origin.Organization "matyasosg" -}}
+    matyasosg
+  {{- else -}}
+    {{- fail "Only the 'opensciencegrid' and 'matyasosg' organizations are allowed" -}}
+  {{- end -}}
 {{- end -}}
 

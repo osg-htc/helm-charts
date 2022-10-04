@@ -44,7 +44,9 @@ Containers:
   Origin:
     # "docker.io" and "hub.opensciencegrid.org" are the allowed registries.
     Registry: "hub.opensciencegrid.org"
-    # The tag to pull; the image is "opensciencegrid/stash-origin"
+    # The organization; "matyasosg" and "opensciencegrid" are the allowed organizations.
+    Organization: opensciencegrid
+    # The tag to pull; the image is "$ORGANIZATION/stash-origin"
     Tag: 3.6-release
     ImagePullPolicy: Always
 

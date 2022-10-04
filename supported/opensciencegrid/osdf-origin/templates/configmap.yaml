@@ -10,13 +10,21 @@ data:
   # The first public or auth origin export is declared in the environment;
   # the rest are in a config file.
   extra_exports.cfg: |-
+    {{ if rest .Values.PublicOrigin.Exports -}}
     if named stash-origin
     {{ range (rest .Values.PublicOrigin.Exports) -}}
       all.export {{ . }}
     {{ end }}
     fi
+    {{- else -}}
+    # No extra public exports given
+    {{- end }}
+    {{ if rest .Values.AuthOrigin.Exports -}}
     if named stash-origin-auth
     {{ range (rest .Values.AuthOrigin.Exports) -}}
       all.export {{ . }}
     {{ end }}
     fi
+    {{- else -}}
+    # No extra auth exports given
+    {{- end }}

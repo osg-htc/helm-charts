@@ -47,13 +47,7 @@ spec:
 
       containers:
         - name: origin
-        {{- if or (empty .Values.Containers.Origin.Registry) (eq .Values.Containers.Origin.Registry "hub.opensciencegrid.org") }}
-          image: "hub.opensciencegrid.org/opensciencegrid/stash-origin:{{ .Values.Containers.Origin.Tag }}"
-        {{- else if eq .Values.Containers.Origin.Registry "docker.io" }}
-          image: "docker.io/opensciencegrid/stash-origin:{{ .Values.Containers.Origin.Tag }}"
-        {{- else }}
-          {{ fail "Only the 'hub.opensciencegrid.org' and 'docker.io' container registries are allowed" }}
-        {{- end }}
+          image: "{{ template "osdf-origin.origin-registry" . }}/{{ template "osdf-origin.origin-organization" . }}/stash-origin:{{ .Values.Containers.Origin.Tag }}"
           imagePullPolicy: {{ .Values.Containers.Origin.ImagePullPolicy }}
           env:
           - name: XC_RESOURCENAME
@@ -64,9 +58,6 @@ spec:
             value: "/xcache/namespace"
         {{- if .Values.PublicOrigin.Exports }}
           - name: XC_PUBLIC_ORIGIN_EXPORT
-            value: "{{ first .Values.PublicOrigin.Exports }}"
-          # for image versions that don't support XC_PUBLIC_ORIGIN_EXPORT
-          - name: XC_ORIGINEXPORT
             value: "{{ first .Values.PublicOrigin.Exports }}"
         {{- end }}
         {{- if .Values.AuthOrigin.Exports }}
