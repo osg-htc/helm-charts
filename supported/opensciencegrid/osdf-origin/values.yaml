@@ -2,6 +2,7 @@
 # Results in a name like "osdf-origin-[Instance]"
 Instance: ""
 
+
 Topology:
   ResourceName: "TestOrigin"
   FQDN: "testorigin.example.net"
@@ -13,7 +14,11 @@ PublicOrigin:
     - "/VONAME/PUBLIC"
     #- "/publicexport2"
     #- "/publicexport3"
-    
+  ## Uncomment and fill out for local additions to the Authfile
+  # AuthfileLocal: |-
+  #  ...
+
+
 AuthOrigin:
   Enabled: false
   # All exports are relative to /xcache/namespace
@@ -21,12 +26,25 @@ AuthOrigin:
     - "/VONAME/PROTECTED"
     #- "/authexport2"
     #- "/authexport3"
+  ## Uncomment and fill out for local additions to the Authfile
+  # AuthfileLocal: |-
+  #   ...
+  ## Uncomment and fill out for local additions to scitokens.conf, e.g. extra issuers.
+  # ScitokensConfLocal: |-
+  #   ...
 
 DataVolumes:
   # All MountPaths are relative to /xcache/namespace
   - Name: "xcache-namespace"
     MountPath: "/"
-    ClaimName: "osdf-origin-data"
+    # Choose one:
+    #ClaimName: "osdf-origin-data"
+    #HostPath: "/mnt/stash/origin-data"
+
+## Uncomment to persist /var/log/xrootd
+# XrootdLogVolume:
+#   ClaimName:
+
 
 # Host Certificate and Key
 # run 'slate secret create --help' for usage
@@ -36,9 +54,13 @@ HostCredentials:
   # "tls.key" and "tls.crt", respectively.
   HostCertKeySecret: null
 
-Resources:
-  CPU: 2
-  Memory: 1Gi
+# Resources:
+#   Requests:
+#     CPU: 1
+#     Memory: 2Gi
+#   Limits:
+#     CPU: 1
+#     Memory: 2Gi
 
 Containers:
   Origin:

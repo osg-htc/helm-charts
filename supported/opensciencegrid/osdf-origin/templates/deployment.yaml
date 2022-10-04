@@ -8,6 +8,8 @@ metadata:
     instance: {{ .Values.Instance | quote }}
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: {{ template "osdf-origin.name" . }}
@@ -25,8 +27,18 @@ spec:
       volumes:
       {{- range .Values.DataVolumes }}
       - name: {{ .Name }}
+        {{- if and (not (empty .ClaimName)) (not (empty .HostPath)) }}
+          {{- fail "Specify ClaimName or HostPath, not both" -}}
+        {{- else if .ClaimName }}
         persistentVolumeClaim:
           claimName: {{ .ClaimName }}
+        {{- else if .HostPath }}
+        hostPath:
+          path: {{ .HostPath }}
+          type: Directory
+        {{- else }}
+          {{- fail "Specify either ClaimName or HostPath" -}}
+        {{- end }}
       {{- end }}
 
       {{- if .Values.HostCredentials.HostCertKeySecret }}
@@ -41,9 +53,17 @@ spec:
             path: hostkey.pem
             mode: 0o400
       {{- end }}
-      - name: extra-exports-cfg
+      - name: config
         configMap:
           name: {{ template "osdf-origin.fullname" . }}
+
+      {{- if .Values.XrootdLogVolume }}
+      - name: logs
+        persistentVolumeClaim:
+          claimName: {{ .Values.XrootdLogVolume.ClaimName }}
+      {{- end }}
+
+      # end volumes
 
       containers:
         - name: origin
@@ -65,13 +85,27 @@ spec:
             value: "{{ first .Values.AuthOrigin.Exports }}"
         {{- end }}
 
+          {{- if .Values.Resources }}
           resources:
+            {{- if .Values.Resources.Requests }}
             requests:
-              cpu: "{{ .Values.Resources.CPU }}"
-              memory: "{{ .Values.Resources.Memory }}"
+              {{- if .Values.Resources.Requests.CPU }}
+              cpu: "{{ .Values.Resources.Requests.CPU }}"
+              {{- end }}
+              {{- if .Values.Resources.Requests.Memory }}
+              memory: "{{ .Values.Resources.Requests.Memory }}"
+              {{- end }}
+            {{- end }}
+            {{- if .Values.Resources.Limits }}
             limits:
-              cpu: "{{ .Values.Resources.CPU }}"
-              memory: "{{ .Values.Resources.Memory }}"
+              {{- if .Values.Resources.Limits.CPU }}
+              cpu: "{{ .Values.Resources.Limits.CPU }}"
+              {{- end }}
+              {{- if .Values.Resources.Limits.Memory }}
+              memory: "{{ .Values.Resources.Limits.Memory }}"
+              {{- end }}
+            {{- end }}
+          {{- end }}
           livenessProbe:
             tcpSocket:
               {{- if .Values.AuthOrigin.Enabled }}
@@ -100,11 +134,33 @@ spec:
             {{- if .Values.HostCredentials.HostCertKeySecret }}
             - mountPath: /etc/grid-security/hostcert.pem
               name: hostcertkey
-              subPath: tls.crt
+              subPath: hostcert.pem
             - mountPath: /etc/grid-security/hostkey.pem
               name: hostcertkey
-              subPath: tls.key
+              subPath: hostkey.pem
             {{ end }}
             - mountPath: /etc/xrootd/config.d/extra_exports.cfg
-              name: extra-exports-cfg
+              name: config
               subPath: extra_exports.cfg
+            {{- if .Values.PublicOrigin.AuthfileLocal }}
+            - mountPath: /run/stash-origin/Authfile.local
+              name: config
+              subPath: stash-origin-Authfile.local
+            {{ end }}
+            {{- if .Values.AuthOrigin.AuthfileLocal }}
+            - mountPath: /run/stash-origin-auth/Authfile.local
+              name: config
+              subPath: stash-origin-auth-Authfile.local
+            {{ end }}
+            {{- if .Values.AuthOrigin.ScitokensConfLocal }}
+            - mountPath: /run/stash-origin-auth/scitokens.conf.local
+              name: config
+              subPath: stash-origin-auth-scitokens.conf.local
+            {{ end }}
+            {{- if .Values.XrootdLogVolume }}
+            - mountPath: /var/log/xrootd
+              name: logs
+            {{ end }}
+          # end volumeMounts
+
+# vim:et:sw=2:sts=2:ts=8
