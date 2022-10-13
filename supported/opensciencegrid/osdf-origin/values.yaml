@@ -2,75 +2,78 @@
 # Results in a name like "osdf-origin-[Instance]"
 Instance: ""
 
+nameOverride: ""
+fullnameOverride: ""
 
-Topology:
-  ResourceName: "TestOrigin"
-  FQDN: "testorigin.example.net"
+topologyResourceName: "TestOrigin"
+topologyFQDN: "testorigin.example.net"
 
-PublicOrigin:
-  Enabled: true
+publicOrigin:
+  enabled: true
+  port: 1094
   # All exports are relative to /xcache/namespace
-  Exports:
+  exports:
     - "/VONAME/PUBLIC"
     #- "/publicexport2"
     #- "/publicexport3"
   ## Uncomment and fill out for local additions to the Authfile
-  # AuthfileLocal: |-
+  # authfileLocal: |-
   #  ...
 
 
-AuthOrigin:
-  Enabled: false
+authOrigin:
+  enabled: false
+  port: 1095
   # All exports are relative to /xcache/namespace
-  Exports:
+  exports:
     - "/VONAME/PROTECTED"
     #- "/authexport2"
     #- "/authexport3"
   ## Uncomment and fill out for local additions to the Authfile
-  # AuthfileLocal: |-
+  # authfileLocal: |-
   #   ...
   ## Uncomment and fill out for local additions to scitokens.conf, e.g. extra issuers.
-  # ScitokensConfLocal: |-
+  # scitokensConfLocal: |-
   #   ...
 
-DataVolumes:
+
+livenessProbeEnabled: true
+
+
+dataVolumes:
   # All MountPaths are relative to /xcache/namespace
-  - Name: "xcache-namespace"
-    MountPath: "/"
+  - name: "xcache-namespace"
+    mountPath: "/"
     # Choose one:
-    #ClaimName: "osdf-origin-data"
-    #HostPath: "/mnt/stash/origin-data"
+    #claimName: "osdf-origin-data"
+    #hostPath: "/mnt/stash/origin-data"
 
 ## Uncomment to persist /var/log/xrootd
-# XrootdLogVolume:
-#   ClaimName:
+xrootdLogVolumeClaimName: null
 
 
-# Host Certificate and Key
 # run 'slate secret create --help' for usage
-# Leaving this empty will disable reporting to the central collector.
-HostCredentials:
-  # Name of the secret containing a host key and certificate in
-  # "tls.key" and "tls.crt", respectively.
-  HostCertKeySecret: null
+# hostCertKeySecret is the name of the secret containing a host key and certificate in
+# "tls.key" and "tls.crt", respectively.
+hostCertKeySecret: null
 
-# Resources:
-#   Requests:
-#     CPU: 1
-#     Memory: 2Gi
-#   Limits:
-#     CPU: 1
-#     Memory: 2Gi
+# Resource requests/limits for the origin container
+# resources:
+#   requests:
+#     cpu: 1
+#     memory: 2Gi
+#   limits:
+#     cpu: 1
+#     memory: 2Gi
 
-Containers:
-  Origin:
-    # "docker.io" and "hub.opensciencegrid.org" are the allowed registries.
-    Registry: "hub.opensciencegrid.org"
-    # The organization; "matyasosg" and "opensciencegrid" are the allowed organizations.
-    Organization: opensciencegrid
-    # The tag to pull; the image is "$ORGANIZATION/stash-origin"
-    Tag: 3.6-release
-    ImagePullPolicy: Always
+image:
+  # "docker.io" and "hub.opensciencegrid.org" are the allowed registries.
+  registry: "hub.opensciencegrid.org"
+  # The organization; "matyasosg" and "opensciencegrid" are the allowed organizations.
+  organization: opensciencegrid
+  # The tag to pull; the image is "$ORGANIZATION/stash-origin"
+  tag: 3.6-release
+  pullPolicy: Always
 
 ### SLATE-START ###
 SLATE:

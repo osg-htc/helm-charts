@@ -32,31 +32,33 @@ Create chart name and version as used by the chart label.
 {{- end -}}
 
 {{/*
-Check Containers.Origin.Registry -- only specific ones are allowed.
+Check image.registry -- only specific ones are allowed.
 Use "hub.opensciencegrid.org" as the default.
 */}}
 {{- define "osdf-origin.origin-registry" -}}
-  {{- if or (empty .Values.Containers.Origin.Registry) (eq .Values.Containers.Origin.Registry "hub.opensciencegrid.org") -}}
-    hub.opensciencegrid.org
-  {{- else if eq .Values.Containers.Origin.Registry "docker.io" -}}
-    docker.io
-  {{- else -}}
-    {{- fail "Only the 'hub.opensciencegrid.org' and 'docker.io' container registries are allowed" -}}
+{{- $okregistries := list "hub.opensciencegrid.org" "docker.io" -}}
+  {{- with .Values.image -}}
+    {{- if has (default "hub.opensciencegrid.org" .registry) $okregistries -}}
+      {{- .registry -}}
+    {{- else -}}
+      {{- fail (cat "image.registry must be one of" (toString $okregistries) ) -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
 
 
 {{/*
-Check Containers.Origin.Organization -- only specific ones are allowed.
+Check image.organization -- only specific ones are allowed.
 Use "opensciencegrid" as the default.
 */}}
 {{- define "osdf-origin.origin-organization" -}}
-  {{- if or (empty .Values.Containers.Origin.Organization) (eq .Values.Containers.Origin.Organization "opensciencegrid") -}}
-    opensciencegrid
-  {{- else if eq .Values.Containers.Origin.Organization "matyasosg" -}}
-    matyasosg
-  {{- else -}}
-    {{- fail "Only the 'opensciencegrid' and 'matyasosg' organizations are allowed" -}}
+{{- $okorganizations := list "opensciencegrid" "matyasosg" -}}
+  {{- with .Values.image -}}
+    {{- if has (default "opensciencegrid" .organization) $okorganizations -}}
+      {{- .organization -}}
+    {{- else -}}
+      {{- fail (cat "image.organization must be one of" (toString $okorganizations) ) -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
 

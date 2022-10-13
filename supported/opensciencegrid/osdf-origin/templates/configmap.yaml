@@ -10,18 +10,18 @@ data:
   # The first public or auth origin export is declared in the environment;
   # the rest are in a config file.
   extra_exports.cfg: |
-    {{ if rest .Values.PublicOrigin.Exports -}}
+    {{ if rest .Values.publicOrigin.exports -}}
     if named stash-origin
-    {{ range (rest .Values.PublicOrigin.Exports) -}}
+    {{ range (rest .Values.publicOrigin.exports) -}}
       all.export {{ . }}
     {{ end }}
     fi
     {{- else -}}
     # No extra public exports given
     {{- end }}
-    {{ if rest .Values.AuthOrigin.Exports -}}
+    {{ if rest .Values.authOrigin.exports -}}
     if named stash-origin-auth
-    {{ range (rest .Values.AuthOrigin.Exports) -}}
+    {{ range (rest .Values.authOrigin.exports) -}}
       all.export {{ . }}
     {{ end }}
     fi
@@ -29,18 +29,18 @@ data:
     # No extra auth exports given
     {{- end }}
 
-  {{ if .Values.PublicOrigin.AuthfileLocal -}}
+  {{ if .Values.publicOrigin.authfileLocal -}}
   stash-origin-Authfile.local: |
-{{ .Values.PublicOrigin.AuthfileLocal | indent 4 }}
+{{ .Values.publicOrigin.authfileLocal | indent 4 }}
   {{- end }}
 
-  {{ if .Values.AuthOrigin.AuthfileLocal -}}
+  {{ if .Values.authOrigin.authfileLocal -}}
   stash-origin-auth-Authfile.local: |
-{{ .Values.AuthOrigin.AuthfileLocal | indent 4 }}
+{{ .Values.authOrigin.authfileLocal | indent 4 }}
   {{- end }}
 
-  {{ if .Values.AuthOrigin.ScitokensConfLocal -}}
+  {{ if .Values.authOrigin.scitokensConfLocal -}}
   stash-origin-auth-scitokens.conf.local: |
-{{ .Values.AuthOrigin.ScitokensConfLocal | indent 4 }}
+{{ .Values.authOrigin.scitokensConfLocal | indent 4 }}
   {{- end }}
 

@@ -25,26 +25,26 @@ spec:
 
     spec:
       volumes:
-      {{- range .Values.DataVolumes }}
-      - name: {{ .Name }}
-        {{- if and (not (empty .ClaimName)) (not (empty .HostPath)) }}
-          {{- fail "Specify ClaimName or HostPath, not both" -}}
-        {{- else if .ClaimName }}
+      {{- range .Values.dataVolumes }}
+      - name: {{ .name }}
+        {{- if and (not (empty .claimName)) (not (empty .hostPath)) }}
+          {{- fail "Specify claimName or hostPath, not both" -}}
+        {{- else if .claimName }}
         persistentVolumeClaim:
-          claimName: {{ .ClaimName }}
-        {{- else if .HostPath }}
+          claimName: {{ .claimName }}
+        {{- else if .hostPath }}
         hostPath:
-          path: {{ .HostPath }}
+          path: {{ .hostPath }}
           type: Directory
         {{- else }}
-          {{- fail "Specify either ClaimName or HostPath" -}}
+          {{- fail "Specify either claimName or hostPath" -}}
         {{- end }}
       {{- end }}
 
-      {{- if .Values.HostCredentials.HostCertKeySecret }}
+      {{- if .Values.hostCertKeySecret }}
       - name: hostcertkey
         secret:
-          secretName: {{ .Values.HostCredentials.HostCertKeySecret }}
+          secretName: {{ .Values.hostCertKeySecret }}
           items:
           - key: tls.crt
             path: hostcert.pem
@@ -57,81 +57,66 @@ spec:
         configMap:
           name: {{ template "osdf-origin.fullname" . }}
 
-      {{- if .Values.XrootdLogVolume }}
-      - name: logs
+      {{- if .Values.xrootdLogVolumeClaimName }}
+      - name: xrootd-log
         persistentVolumeClaim:
-          claimName: {{ .Values.XrootdLogVolume.ClaimName }}
+          claimName: {{ .Values.xrootdLogVolumeClaimName }}
       {{- end }}
 
       # end volumes
 
       containers:
         - name: origin
-          image: "{{ template "osdf-origin.origin-registry" . }}/{{ template "osdf-origin.origin-organization" . }}/stash-origin:{{ .Values.Containers.Origin.Tag }}"
-          imagePullPolicy: {{ .Values.Containers.Origin.ImagePullPolicy }}
+          image: "{{ template "osdf-origin.origin-registry" . }}/{{ template "osdf-origin.origin-organization" . }}/stash-origin:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
           - name: XC_RESOURCENAME
-            value: "{{ .Values.Topology.ResourceName }}"
+            value: "{{ .Values.topologyResourceName }}"
           - name: ORIGIN_FQDN
-            value: "{{ .Values.Topology.FQDN }}"
+            value: "{{ .Values.topologyFQDN }}"
           - name: XC_ROOTDIR
             value: "/xcache/namespace"
-        {{- if .Values.PublicOrigin.Exports }}
+        {{- if .Values.publicOrigin.exports }}
           - name: XC_PUBLIC_ORIGIN_EXPORT
-            value: "{{ first .Values.PublicOrigin.Exports }}"
+            value: "{{ first .Values.publicOrigin.exports }}"
         {{- end }}
-        {{- if .Values.AuthOrigin.Exports }}
+        {{- if .Values.authOrigin.exports }}
           - name: XC_AUTH_ORIGIN_EXPORT
-            value: "{{ first .Values.AuthOrigin.Exports }}"
+            value: "{{ first .Values.authOrigin.exports }}"
         {{- end }}
 
-          {{- if .Values.Resources }}
+          {{- if .Values.resources }}
           resources:
-            {{- if .Values.Resources.Requests }}
-            requests:
-              {{- if .Values.Resources.Requests.CPU }}
-              cpu: "{{ .Values.Resources.Requests.CPU }}"
-              {{- end }}
-              {{- if .Values.Resources.Requests.Memory }}
-              memory: "{{ .Values.Resources.Requests.Memory }}"
-              {{- end }}
-            {{- end }}
-            {{- if .Values.Resources.Limits }}
-            limits:
-              {{- if .Values.Resources.Limits.CPU }}
-              cpu: "{{ .Values.Resources.Limits.CPU }}"
-              {{- end }}
-              {{- if .Values.Resources.Limits.Memory }}
-              memory: "{{ .Values.Resources.Limits.Memory }}"
-              {{- end }}
-            {{- end }}
+            {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
+          {{- if .Values.livenessProbeEnabled }}
           livenessProbe:
             tcpSocket:
-              {{- if .Values.AuthOrigin.Enabled }}
+              {{- if .Values.authOrigin.enabled }}
               port: 1095
-              {{- else if .Values.PublicOrigin.Enabled }}
+              {{- else if .Values.publicOrigin.enabled }}
               port: 1094
               {{- end }}
             initialDelaySeconds: 600
             periodSeconds: 60
+          {{- end }}
           ports:
-            {{- if .Values.AuthOrigin.Enabled }}
+            {{- if .Values.authOrigin.enabled }}
             - containerPort: 1095
-              hostPort: 1095
+              hostPort: {{ default 1095 .Values.authOrigin.port }}
               protocol: TCP
             {{- end }}
-            {{- if .Values.PublicOrigin.Enabled }}
+            {{- if .Values.publicOrigin.enabled }}
             - containerPort: 1094
-              hostPort: 1094
+              hostPort: {{ default 1094 .Values.publicOrigin.port }}
               protocol: TCP
             {{- end }}
           volumeMounts:
-            {{- range .Values.DataVolumes }}
-            - mountPath: /xcache/namespace{{ .MountPath }}
-              name: {{ .Name }}
+            {{- range .Values.dataVolumes }}
+            - mountPath: /xcache/namespace{{ .mountPath }}
+              name: {{ .name }}
             {{ end }}
-            {{- if .Values.HostCredentials.HostCertKeySecret }}
+            {{- if .Values.hostCertKeySecret }}
             - mountPath: /etc/grid-security/hostcert.pem
               name: hostcertkey
               subPath: hostcert.pem
@@ -142,24 +127,24 @@ spec:
             - mountPath: /etc/xrootd/config.d/extra_exports.cfg
               name: config
               subPath: extra_exports.cfg
-            {{- if .Values.PublicOrigin.AuthfileLocal }}
+            {{- if .Values.publicOrigin.authfileLocal }}
             - mountPath: /run/stash-origin/Authfile.local
               name: config
               subPath: stash-origin-Authfile.local
             {{ end }}
-            {{- if .Values.AuthOrigin.AuthfileLocal }}
+            {{- if .Values.authOrigin.authfileLocal }}
             - mountPath: /run/stash-origin-auth/Authfile.local
               name: config
               subPath: stash-origin-auth-Authfile.local
             {{ end }}
-            {{- if .Values.AuthOrigin.ScitokensConfLocal }}
+            {{- if .Values.authOrigin.scitokensConfLocal }}
             - mountPath: /run/stash-origin-auth/scitokens.conf.local
               name: config
               subPath: stash-origin-auth-scitokens.conf.local
             {{ end }}
-            {{- if .Values.XrootdLogVolume }}
+            {{- if .Values.xrootdLogVolumeClaimName }}
             - mountPath: /var/log/xrootd
-              name: logs
+              name: xrootd-log
             {{ end }}
           # end volumeMounts
 
