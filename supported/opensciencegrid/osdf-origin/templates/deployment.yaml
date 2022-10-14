@@ -15,7 +15,6 @@ spec:
       app: {{ template "osdf-origin.name" . }}
       release: {{ .Release.Name }}
       instance: {{ .Values.Instance | quote }}
-
   template:
     metadata:
       labels:
@@ -24,6 +23,9 @@ spec:
         instance: {{ .Values.Instance | quote }}
 
     spec:
+      {{- if .Values.nodeName }}
+      nodeName: {{ .Values.nodeName }}
+      {{- end }}
       volumes:
       {{- range .Values.dataVolumes }}
       - name: {{ .name }}

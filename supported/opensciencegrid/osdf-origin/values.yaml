@@ -5,6 +5,8 @@ Instance: ""
 nameOverride: ""
 fullnameOverride: ""
 
+nodeName: null
+
 topologyResourceName: "TestOrigin"
 topologyFQDN: "testorigin.example.net"
 
