@@ -26,6 +26,18 @@ spec:
       {{- if .Values.nodeName }}
       nodeName: {{ .Values.nodeName }}
       {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       volumes:
       {{- range .Values.dataVolumes }}
       - name: {{ .name }}
@@ -149,5 +161,9 @@ spec:
               name: xrootd-log
             {{ end }}
           # end volumeMounts
+      # end containers
+    # end spec
+  # end template
+# end spec
 
 # vim:et:sw=2:sts=2:ts=8

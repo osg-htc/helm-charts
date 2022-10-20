@@ -77,6 +77,14 @@ image:
   tag: 3.6-release
   pullPolicy: Always
 
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+
 ### SLATE-START ###
 SLATE:
   Instance:
