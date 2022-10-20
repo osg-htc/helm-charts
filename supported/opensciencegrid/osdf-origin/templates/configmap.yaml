@@ -12,8 +12,8 @@ data:
   extra_exports.cfg: |
     {{ if rest .Values.publicOrigin.exports -}}
     if named stash-origin
-    {{ range (rest .Values.publicOrigin.exports) -}}
-      all.export {{ . }}
+    {{- range (rest .Values.publicOrigin.exports) -}}
+      {{- printf "all.export %s" . | nindent 6 -}}
     {{ end }}
     fi
     {{- else -}}
@@ -21,8 +21,8 @@ data:
     {{- end }}
     {{ if rest .Values.authOrigin.exports -}}
     if named stash-origin-auth
-    {{ range (rest .Values.authOrigin.exports) -}}
-      all.export {{ . }}
+    {{- range (rest .Values.authOrigin.exports) -}}
+      {{- printf "all.export %s" . | nindent 6 -}}
     {{ end }}
     fi
     {{- else -}}
