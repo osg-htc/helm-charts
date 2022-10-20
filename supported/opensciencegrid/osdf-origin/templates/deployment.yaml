@@ -39,44 +39,43 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-      {{- range .Values.dataVolumes }}
-      - name: {{ .name }}
-        {{- if and (not (empty .claimName)) (not (empty .hostPath)) }}
-          {{- fail "Specify claimName or hostPath, not both" -}}
-        {{- else if .claimName }}
-        persistentVolumeClaim:
-          claimName: {{ .claimName }}
-        {{- else if .hostPath }}
-        hostPath:
-          path: {{ .hostPath }}
-          type: Directory
-        {{- else }}
-          {{- fail "Specify either claimName or hostPath" -}}
+        {{- range .Values.dataVolumes }}
+        - name: {{ .name }}
+          {{- if and (not (empty .claimName)) (not (empty .hostPath)) }}
+            {{- fail "Specify claimName or hostPath, not both" -}}
+          {{- else if .claimName }}
+          persistentVolumeClaim:
+            claimName: {{ .claimName }}
+          {{- else if .hostPath }}
+          hostPath:
+            path: {{ .hostPath }}
+            type: Directory
+          {{- else }}
+            {{- fail "Specify either claimName or hostPath" -}}
+          {{- end }}
         {{- end }}
-      {{- end }}
 
-      {{- if .Values.hostCertKeySecret }}
-      - name: hostcertkey
-        secret:
-          secretName: {{ .Values.hostCertKeySecret }}
-          items:
-          - key: tls.crt
-            path: hostcert.pem
-            mode: 0o644
-          - key: tls.key
-            path: hostkey.pem
-            mode: 0o400
-      {{- end }}
-      - name: config
-        configMap:
-          name: {{ template "osdf-origin.fullname" . }}
+        {{- if .Values.hostCertKeySecret }}
+        - name: hostcertkey
+          secret:
+            secretName: {{ .Values.hostCertKeySecret }}
+            items:
+            - key: tls.crt
+              path: hostcert.pem
+              mode: 0o644
+            - key: tls.key
+              path: hostkey.pem
+              mode: 0o400
+        {{- end }}
+        - name: config
+          configMap:
+            name: {{ template "osdf-origin.fullname" . }}
 
-      {{- if .Values.xrootdLogVolumeClaimName }}
-      - name: xrootd-log
-        persistentVolumeClaim:
-          claimName: {{ .Values.xrootdLogVolumeClaimName }}
-      {{- end }}
-
+        {{- if .Values.xrootdLogVolumeClaimName }}
+        - name: xrootd-log
+          persistentVolumeClaim:
+            claimName: {{ .Values.xrootdLogVolumeClaimName }}
+        {{- end }}
       # end volumes
 
       containers:
@@ -84,20 +83,20 @@ spec:
           image: "{{ template "osdf-origin.origin-registry" . }}/{{ template "osdf-origin.origin-organization" . }}/stash-origin:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-          - name: XC_RESOURCENAME
-            value: "{{ .Values.topologyResourceName }}"
-          - name: ORIGIN_FQDN
-            value: "{{ .Values.topologyFQDN }}"
-          - name: XC_ROOTDIR
-            value: "/xcache/namespace"
-        {{- if .Values.publicOrigin.exports }}
-          - name: XC_PUBLIC_ORIGIN_EXPORT
-            value: "{{ first .Values.publicOrigin.exports }}"
-        {{- end }}
-        {{- if .Values.authOrigin.exports }}
-          - name: XC_AUTH_ORIGIN_EXPORT
-            value: "{{ first .Values.authOrigin.exports }}"
-        {{- end }}
+            - name: XC_RESOURCENAME
+              value: "{{ .Values.topologyResourceName }}"
+            - name: ORIGIN_FQDN
+              value: "{{ .Values.topologyFQDN }}"
+            - name: XC_ROOTDIR
+              value: "/xcache/namespace"
+            {{- if .Values.publicOrigin.exports }}
+            - name: XC_PUBLIC_ORIGIN_EXPORT
+              value: "{{ first .Values.publicOrigin.exports }}"
+            {{- end }}
+            {{- if .Values.authOrigin.exports }}
+            - name: XC_AUTH_ORIGIN_EXPORT
+              value: "{{ first .Values.authOrigin.exports }}"
+            {{- end }}
 
           {{- if .Values.resources }}
           resources:
