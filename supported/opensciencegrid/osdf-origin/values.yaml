@@ -84,6 +84,7 @@ tolerations: []
 
 affinity: {}
 
+serviceAnnotations: {}
 
 ### SLATE-START ###
 SLATE:
