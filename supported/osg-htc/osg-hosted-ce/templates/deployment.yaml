@@ -23,9 +23,13 @@ spec:
         release: {{ .Release.Name }}
         instance: {{ .Values.Instance }}
     spec:
-      {{ if .Values.NodeSelection }}
+      {{ if .Values.NodeSelection.Enabled }}
       nodeSelector: 
-        kubernetes.io/hostname: {{ .Values.NodeSelection }}
+        {{ if .Values.NodeSelection.NodeLabels}}
+        {{- range $key, $value := .Values.NodeSelection.NodeLabels }}
+        {{ $key }}: {{ $value }}
+        {{- end }}
+        {{ end }}
       {{ end }}
       volumes:
       {{ if .Values.Persistence.LibCondorCeVolume }}
@@ -121,7 +125,7 @@ spec:
           name: osg-hosted-ce-{{ .Values.Instance }}-logger-startup
       initContainers:
       - name: logging-sidecar-init
-        image: hub.opensciencegrid.org/opensciencegrid/hosted-ce:{{ .Values.ContainerTags.HostedCE }}
+        image: "hub.opensciencegrid.org/opensciencegrid/hosted-ce:{{ .Values.ContainerTags.HostedCE }}"
         imagePullPolicy: Always
         command: ['/bin/chown','condor:condor','/var/log/condor-ce']
         volumeMounts:
