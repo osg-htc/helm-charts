@@ -6,6 +6,8 @@ metadata:
     app: osg-hosted-ce
     instance: {{ .Values.Instance }}
     release: {{ .Release.Name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
 data:
   90-local.ini: |
     [Gateway]
@@ -61,6 +63,8 @@ metadata:
     app: osg-hosted-ce
     instance: {{ .Values.Instance }}
     release: {{ .Release.Name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
 data:
   90-instance.conf: |+
 {{ if .Values.Networking.RequestIP }}
@@ -108,6 +112,8 @@ metadata:
     app: osg-hosted-ce
     instance: {{ .Values.Instance }}
     release: {{ .Release.Name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
 data:
   50-slate-scitokens.conf: |+
     {{- range $index, $map := .Values.SciTokenRemoteUserMapping }}
@@ -125,6 +131,8 @@ metadata:
     app: osg-hosted-ce
     instance: {{ .Values.Instance }}
     release: {{ .Release.Name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
 data:
   start-nginx.sh: |+
     #!/bin/bash -e
@@ -173,6 +181,8 @@ metadata:
     app: osg-hosted-ce
     instance: {{ .Values.Instance }}
     release: {{ .Release.Name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
 data:
   ssh_known_hosts: |+
 {{ .Values.RemoteCluster.KnownHosts | indent 4}}
