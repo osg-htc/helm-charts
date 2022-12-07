@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-{{ template "osg-hosted-ce.name" . }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ template "osg-hosted-ce.name" . }}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - ports:
+    - protocol: TCP
+      port: 9619
+  egress:
+  - {}
