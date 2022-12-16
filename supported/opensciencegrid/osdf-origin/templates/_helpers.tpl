@@ -52,7 +52,7 @@ Check image.organization -- only specific ones are allowed.
 Use "opensciencegrid" as the default.
 */}}
 {{- define "osdf-origin.origin-organization" -}}
-{{- $okorganizations := list "opensciencegrid" "matyasosg" -}}
+{{- $okorganizations := list "opensciencegrid" "matyasosg" "osgpreview" -}}
   {{- with .Values.image -}}
     {{- if has (default "opensciencegrid" .organization) $okorganizations -}}
       {{- .organization -}}
