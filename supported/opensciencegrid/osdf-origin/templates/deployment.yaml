@@ -183,7 +183,7 @@ spec:
               subPath: 00-extra-before.cfg
             {{ end }}
             {{- if .Values.extraXrootdConfigAfter }}
-            - mountPath: /etc/xrootd/config.d/00-extra-after.cfg
+            - mountPath: /etc/xrootd/config.d/99-extra-after.cfg
               name: config
               subPath: 99-extra-after.cfg
             {{ end }}
