@@ -105,6 +105,8 @@ spec:
               value: "{{ .Values.topologyFQDN }}"
             - name: XC_ROOTDIR
               value: "/xcache/namespace"
+            - name: XRDHOST
+              value: "{{ .Values.topologyFQDN }}"
             {{- if .Values.publicOrigin.exports }}
             - name: XC_PUBLIC_ORIGIN_EXPORT
               value: "{{ first .Values.publicOrigin.exports }}"
