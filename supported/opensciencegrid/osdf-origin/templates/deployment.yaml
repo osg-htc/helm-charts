@@ -40,21 +40,21 @@ spec:
       {{- end }}
       volumes:
         {{- if .Values.dataVolumes }}
-          {{- range .Values.dataVolumes }}
-          - name: {{ .name }}
-            {{- if and (not (empty .claimName)) (not (empty .hostPath)) }}
-              {{- fail "Specify claimName or hostPath, not both" -}}
-            {{- else if .claimName }}
-            persistentVolumeClaim:
-              claimName: {{ .claimName }}
-            {{- else if .hostPath }}
-            hostPath:
-              path: {{ .hostPath }}
-              type: Directory
-            {{- else }}
-              {{- fail "Specify either claimName or hostPath" -}}
-            {{- end }}
+        {{- range .Values.dataVolumes }}
+        - name: {{ .name }}
+          {{- if and (not (empty .claimName)) (not (empty .hostPath)) }}
+            {{- fail "Specify claimName or hostPath, not both" -}}
+          {{- else if .claimName }}
+          persistentVolumeClaim:
+            claimName: {{ .claimName }}
+          {{- else if .hostPath }}
+          hostPath:
+            path: {{ .hostPath }}
+            type: Directory
+          {{- else }}
+            {{- fail "Specify either claimName or hostPath" -}}
           {{- end }}
+        {{- end }}
         {{- end }}
 
         {{- if .Values.hostCertKeySecret }}
