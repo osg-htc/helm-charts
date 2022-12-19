@@ -29,14 +29,14 @@ data:
     # No extra auth exports given
     {{- end }}
 
-  {{ if .Values.extraConfigBefore -}}
+  {{ if .Values.extraXrootdConfigBefore -}}
   00-extra-before.cfg: |
-{{ .Values.extraConfigBefore | indent 4 }}
+{{ .Values.extraXrootdConfigBefore | indent 4 }}
   {{- end }}
 
-  {{ if .Values.extraConfigAfter -}}
+  {{ if .Values.extraXrootdConfigAfter -}}
   99-extra-after.cfg: |
-{{ .Values.extraConfigAfter | indent 4 }}
+{{ .Values.extraXrootdConfigAfter | indent 4 }}
   {{- end }}
 
   {{ if .Values.publicOrigin.authfileLocal -}}

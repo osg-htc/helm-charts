@@ -175,12 +175,12 @@ spec:
               name: config
               subPath: stash-origin-auth-scitokens.conf.local
             {{ end }}
-            {{- if .Values.extraConfigBefore }}
+            {{- if .Values.extraXrootdConfigBefore }}
             - mountPath: /etc/xrootd/config.d/00-extra-before.cfg
               name: config
               subPath: 00-extra-before.cfg
             {{ end }}
-            {{- if .Values.extraConfigAfter }}
+            {{- if .Values.extraXrootdConfigAfter }}
             - mountPath: /etc/xrootd/config.d/00-extra-after.cfg
               name: config
               subPath: 99-extra-after.cfg

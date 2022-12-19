@@ -39,11 +39,11 @@ authOrigin:
   #   ...
 
 ## Uncomment and fill out for extra xrootd config lines, added before the OSG-provided config
-# extraConfigBefore: |-
+# extraXrootdConfigBefore: |-
 #   ...
 
 ## Uncomment and fill out for extra xrootd config lines, added after the OSG-provided config
-# extraConfigAfter: |-
+# extraXrootdConfigAfter: |-
 #   ...
 
 
