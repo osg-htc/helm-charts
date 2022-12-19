@@ -38,6 +38,14 @@ authOrigin:
   # scitokensConfLocal: |-
   #   ...
 
+## Uncomment and fill out for extra xrootd config lines, added before the OSG-provided config
+# extraConfigBefore: |-
+#   ...
+
+## Uncomment and fill out for extra xrootd config lines, added after the OSG-provided config
+# extraConfigAfter: |-
+#   ...
+
 
 livenessProbeEnabled: true
 

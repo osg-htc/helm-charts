@@ -1,7 +1,7 @@
 apiVersion: v1
 name: osdf-origin
 # Chart version
-version: "0.18"
+version: "0.19"
 description: OSDF origin
 # Version of application packaged for installation; this should be the branch the xcache RPM is from
 appVersion: "V3"

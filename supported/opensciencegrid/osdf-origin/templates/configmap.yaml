@@ -29,6 +29,16 @@ data:
     # No extra auth exports given
     {{- end }}
 
+  {{ if .Values.extraConfigBefore -}}
+  00-extra-before.cfg: |
+{{ .Values.extraConfigBefore | indent 4 }}
+  {{- end }}
+
+  {{ if .Values.extraConfigAfter -}}
+  99-extra-after.cfg: |
+{{ .Values.extraConfigAfter | indent 4 }}
+  {{- end }}
+
   {{ if .Values.publicOrigin.authfileLocal -}}
   stash-origin-Authfile.local: |
 {{ .Values.publicOrigin.authfileLocal | indent 4 }}
