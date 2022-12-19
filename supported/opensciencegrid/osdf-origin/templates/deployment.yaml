@@ -115,6 +115,9 @@ spec:
             - name: XC_AUTH_ORIGIN_EXPORT
               value: "{{ first .Values.authOrigin.exports }}"
             {{- end }}
+            {{- if .Values.extraEnv }}
+              {{- toYaml .Values.extraEnv | nindent 12 }}
+            {{- end }}
 
           {{- with .Values.resources }}
           resources:

@@ -76,6 +76,11 @@ hostCertKeySecret: null
 #     cpu: 1
 #     memory: 2Gi
 
+# Extra environment variables for the origin container
+# extraEnv:
+#   - name: XRDHOST
+#     value: "origin.example.net"
+
 image:
   # "docker.io" and "hub.opensciencegrid.org" are the allowed registries.
   registry: "hub.opensciencegrid.org"
