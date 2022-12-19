@@ -94,6 +94,9 @@ affinity: {}
 
 serviceAnnotations: {}
 
+
+# s3KeysSecret: null
+
 ### SLATE-START ###
 SLATE:
   Instance:

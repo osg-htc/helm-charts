@@ -69,6 +69,20 @@ spec:
               path: hostkey.pem
               mode: 0o400
         {{- end }}
+
+        {{- if .Values.s3KeysSecret }}
+        - name: s3-keys
+          secret:
+            secretName: {{ .Values.s3KeysSecret }}
+            items:
+            - key: access_key
+              path: access_key
+              mode: 0o644
+            - key: private_key
+              path: private_key
+              mode: 0o400
+        {{- end }}
+
         - name: config
           configMap:
             name: {{ template "osdf-origin.fullname" . }}
@@ -138,6 +152,10 @@ spec:
             - mountPath: /etc/grid-security/hostkey.pem
               name: hostcertkey
               subPath: hostkey.pem
+            {{ end }}
+            {{- if .Values.s3KeysSecret }}
+            - mountPath: /s3-secrets
+              name: s3-keys
             {{ end }}
             - mountPath: /etc/xrootd/config.d/extra_exports.cfg
               name: config
