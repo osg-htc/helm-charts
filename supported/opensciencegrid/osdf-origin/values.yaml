@@ -11,13 +11,14 @@ topologyResourceName: "TestOrigin"
 topologyFQDN: "testorigin.example.net"
 
 publicOrigin:
-  enabled: true
+  enabled: false
   port: 1094
-  # All exports are relative to /xcache/namespace
-  exports:
-    - "/VONAME/PUBLIC"
-    #- "/publicexport2"
-    #- "/publicexport3"
+  ## Uncomment and list at least one namespace to export
+  ## All exports are relative to /xcache/namespace
+  #exports:
+  #  - "/VONAME/PUBLIC"
+  #  - "/publicexport2"
+  #  - "/publicexport3"
   ## Uncomment and fill out for local additions to the Authfile
   # authfileLocal: |-
   #  ...
@@ -26,11 +27,12 @@ publicOrigin:
 authOrigin:
   enabled: false
   port: 1095
-  # All exports are relative to /xcache/namespace
-  exports:
-    - "/VONAME/PROTECTED"
-    #- "/authexport2"
-    #- "/authexport3"
+  ## Uncomment and list at least one namespace to export
+  ## All exports are relative to /xcache/namespace
+  #exports:
+  #  - "/VONAME/PROTECTED"
+  #  - "/authexport2"
+  #  - "/authexport3"
   ## Uncomment and fill out for local additions to the Authfile
   # authfileLocal: |-
   #   ...
@@ -78,8 +80,8 @@ hostCertKeySecret: null
 
 # Extra environment variables for the origin container
 # extraEnv:
-#   - name: XRDHOST
-#     value: "origin.example.net"
+#   - name: ...
+#     value: "..."
 
 image:
   # "docker.io" and "hub.opensciencegrid.org" are the allowed registries.
