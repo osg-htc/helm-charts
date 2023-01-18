@@ -10,6 +10,7 @@ data:
   # The first public or auth origin export is declared in the environment;
   # the rest are in a config file.
   extra_exports.cfg: |
+    {{ if and .Values.publicOrigin.enabled .Values.publicOrigin.exports -}}
     {{ if rest .Values.publicOrigin.exports -}}
     if named stash-origin
     {{- range (rest .Values.publicOrigin.exports) -}}
@@ -19,6 +20,8 @@ data:
     {{- else -}}
     # No extra public exports given
     {{- end }}
+    {{- end }}
+    {{ if and .Values.authOrigin.enabled .Values.authOrigin.exports -}}
     {{ if rest .Values.authOrigin.exports -}}
     if named stash-origin-auth
     {{- range (rest .Values.authOrigin.exports) -}}
@@ -27,6 +30,7 @@ data:
     fi
     {{- else -}}
     # No extra auth exports given
+    {{- end }}
     {{- end }}
 
   {{ if .Values.extraXrootdConfigBefore -}}

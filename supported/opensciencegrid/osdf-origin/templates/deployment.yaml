@@ -107,11 +107,11 @@ spec:
               value: "/xcache/namespace"
             - name: XRDHOST
               value: "{{ .Values.topologyFQDN }}"
-            {{- if .Values.publicOrigin.exports }}
+            {{- if and .Values.publicOrigin.enabled .Values.publicOrigin.exports }}
             - name: XC_PUBLIC_ORIGIN_EXPORT
               value: "{{ first .Values.publicOrigin.exports }}"
             {{- end }}
-            {{- if .Values.authOrigin.exports }}
+            {{- if and .Values.authOrigin.enabled .Values.authOrigin.exports }}
             - name: XC_AUTH_ORIGIN_EXPORT
               value: "{{ first .Values.authOrigin.exports }}"
             {{- end }}
@@ -165,17 +165,17 @@ spec:
             - mountPath: /etc/xrootd/config.d/extra_exports.cfg
               name: config
               subPath: extra_exports.cfg
-            {{- if .Values.publicOrigin.authfileLocal }}
+            {{- if and .Values.publicOrigin.enabled .Values.publicOrigin.authfileLocal }}
             - mountPath: /run/stash-origin/Authfile.local
               name: config
               subPath: stash-origin-Authfile.local
             {{ end }}
-            {{- if .Values.authOrigin.authfileLocal }}
+            {{- if and .Values.authOrigin.enabled .Values.authOrigin.authfileLocal }}
             - mountPath: /run/stash-origin-auth/Authfile.local
               name: config
               subPath: stash-origin-auth-Authfile.local
             {{ end }}
-            {{- if .Values.authOrigin.scitokensConfLocal }}
+            {{- if and .Values.authOrigin.enabled .Values.authOrigin.scitokensConfLocal }}
             - mountPath: /run/stash-origin-auth/scitokens.conf.local
               name: config
               subPath: stash-origin-auth-scitokens.conf.local
