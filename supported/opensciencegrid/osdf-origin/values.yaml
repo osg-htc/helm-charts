@@ -5,10 +5,13 @@ Instance: ""
 nameOverride: ""
 fullnameOverride: ""
 
-nodeName: null
-
 topologyResourceName: "TestOrigin"
 topologyFQDN: "testorigin.example.net"
+
+# run 'slate secret create --help' for usage
+# hostCertKeySecret is the name of the secret containing a host key and certificate in
+# "tls.key" and "tls.crt", respectively.
+hostCertKeySecret: null
 
 publicOrigin:
   enabled: false
@@ -40,6 +43,14 @@ authOrigin:
   # scitokensConfLocal: |-
   #   ...
 
+dataVolumes:
+  # All MountPaths are relative to /xcache/namespace
+  - name: "xcache-namespace"
+    mountPath: "/"
+    # Choose one:
+    #claimName: "osdf-origin-data"
+    #hostPath: "/mnt/stash/origin-data"
+
 ## Uncomment and fill out for extra xrootd config lines, added before the OSG-provided config
 # extraXrootdConfigBefore: |-
 #   ...
@@ -52,22 +63,18 @@ authOrigin:
 livenessProbeEnabled: true
 
 
-dataVolumes:
-  # All MountPaths are relative to /xcache/namespace
-  - name: "xcache-namespace"
-    mountPath: "/"
-    # Choose one:
-    #claimName: "osdf-origin-data"
-    #hostPath: "/mnt/stash/origin-data"
-
 ## Uncomment to persist /var/log/xrootd
 xrootdLogVolumeClaimName: null
 
 
-# run 'slate secret create --help' for usage
-# hostCertKeySecret is the name of the secret containing a host key and certificate in
-# "tls.key" and "tls.crt", respectively.
-hostCertKeySecret: null
+image:
+  # "docker.io" and "hub.opensciencegrid.org" are the allowed registries.
+  registry: "hub.opensciencegrid.org"
+  # The organization; "matyasosg", "osgpreview", and "opensciencegrid" are the allowed organizations.
+  organization: opensciencegrid
+  # The tag to pull; the image is "$ORGANIZATION/stash-origin"
+  tag: 3.6-release
+  pullPolicy: Always
 
 # Resource requests/limits for the origin container
 # resources:
@@ -83,25 +90,23 @@ hostCertKeySecret: null
 #   - name: ...
 #     value: "..."
 
-image:
-  # "docker.io" and "hub.opensciencegrid.org" are the allowed registries.
-  registry: "hub.opensciencegrid.org"
-  # The organization; "matyasosg" and "opensciencegrid" are the allowed organizations.
-  organization: opensciencegrid
-  # The tag to pull; the image is "$ORGANIZATION/stash-origin"
-  tag: 3.6-release
-  pullPolicy: Always
 
+# Optional node lock for the deployment
+nodeName: null
 
+# Optional nodeSelector block for the deployment
 nodeSelector: {}
 
+# Optional tolerations block for the deployment
 tolerations: []
 
+# Optional affinity block for the deployment
 affinity: {}
 
+# Optional annotations block for the service
 serviceAnnotations: {}
 
-
+## A secret containing the S3 keys for the experimental S3 plugin
 # s3KeysSecret: null
 
 ### SLATE-START ###
