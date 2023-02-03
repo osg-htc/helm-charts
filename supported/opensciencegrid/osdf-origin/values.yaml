@@ -43,10 +43,10 @@ authOrigin:
   # scitokensConfLocal: |-
   #   ...
 
-dataVolumes:
+# dataVolumes:
   # All MountPaths are relative to /xcache/namespace
-  - name: "xcache-namespace"
-    mountPath: "/"
+  #- name: "xcache-namespace"
+    #mountPath: "/"
     # Choose one:
     #claimName: "osdf-origin-data"
     #hostPath: "/mnt/stash/origin-data"
