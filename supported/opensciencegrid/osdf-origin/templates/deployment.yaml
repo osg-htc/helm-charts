@@ -92,6 +92,15 @@ spec:
           persistentVolumeClaim:
             claimName: {{ .Values.xrootdLogVolumeClaimName }}
         {{- end }}
+
+        {{- if .Values.sssd.enabled }}
+        - name: sssd-config
+          secret:
+            secretName: {{ .Values.sssd.configSecret }}
+            defaultMode: 384  # octal: 0600 (u=rw, go=)
+        - name: sssd-sockets
+          emptyDir: {}
+        {{ end }}
       # end volumes
 
       containers:
@@ -194,7 +203,29 @@ spec:
             - mountPath: /var/log/xrootd
               name: xrootd-log
             {{ end }}
+            {{- if .Values.sssd.enabled }}
+            - name: sssd-sockets
+              mountPath: /var/lib/sss/pipes
+            {{ end }}
           # end volumeMounts
+        {{- if .Values.sssd.enabled }}
+        - name: sssd
+          image: hub.opensciencegrid.org/opensciencegrid/sssd:3.6-release
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "0.2"
+              memory: "128Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          volumeMounts:
+            - name: sssd-config
+              mountPath: /etc/sssd/sssd.conf
+              subPath: sssd.conf
+            - name: sssd-sockets
+              mountPath: /var/lib/sss/pipes
+        {{ end }}
       # end containers
     # end spec
   # end template

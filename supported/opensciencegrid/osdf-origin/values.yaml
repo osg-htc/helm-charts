@@ -106,6 +106,18 @@ affinity: {}
 # Optional annotations block for the service
 serviceAnnotations: {}
 
+##########################
+# OPTIONAL CONFIGURATION #
+##########################
+
+# Add SSSD to the origin deployment.  Useful for ensuring UIDs/GIDs
+# match across a shared filesystem
+sssd:
+  enabled: false
+  # Secret containing SSSD configuration under the 'sssd.conf' key.
+  # Required if 'enabled: true'
+  configSecret: null
+
 ## A secret containing the S3 keys for the experimental S3 plugin
 # s3KeysSecret: null
 
