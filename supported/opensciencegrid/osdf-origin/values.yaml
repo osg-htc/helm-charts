@@ -118,6 +118,11 @@ sssd:
   # Required if 'enabled: true'
   configSecret: null
 
+# Enable XRootD to setuid/setgid to the authenticated user for
+# filesystem operations
+multiUser:
+  enabled: false
+
 ## A secret containing the S3 keys for the experimental S3 plugin
 # s3KeysSecret: null
 

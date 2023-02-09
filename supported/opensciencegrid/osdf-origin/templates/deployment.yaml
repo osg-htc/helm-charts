@@ -116,6 +116,10 @@ spec:
               value: "/xcache/namespace"
             - name: XRDHOST
               value: "{{ .Values.topologyFQDN }}"
+            {{- if .Values.multiUser.enabled }}
+            - name: XC_ENABLE_MULTIUSER
+              value: "True"
+            {{ end }}
             {{- if and .Values.publicOrigin.enabled .Values.publicOrigin.exports }}
             - name: XC_PUBLIC_ORIGIN_EXPORT
               value: "{{ first .Values.publicOrigin.exports }}"
@@ -154,6 +158,14 @@ spec:
               hostPort: {{ default 1094 .Values.publicOrigin.port }}
               protocol: TCP
             {{- end }}
+          {{- if .Values.multiUser.enabled }}
+          securityContext:
+            capabilities:
+              add:
+                - SETUID
+                - SETGID
+                - DAC_OVERRIDE
+          {{ end }}
           volumeMounts:
             {{- range .Values.dataVolumes }}
             - mountPath: /xcache/namespace{{ .mountPath }}
