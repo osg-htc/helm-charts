@@ -211,6 +211,11 @@ spec:
               name: config
               subPath: 99-extra-after.cfg
             {{ end }}
+            {{- if .Values.multiUser.enabled }}
+            - mountPath: /etc/xrootd/config.d/60-helm-multiuser.cfg
+              name: config
+              subPath: 60-helm-multiuser.cfg
+            {{ end }}
             {{- if .Values.xrootdLogVolumeClaimName }}
             - mountPath: /var/log/xrootd
               name: xrootd-log

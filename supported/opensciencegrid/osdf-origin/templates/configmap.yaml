@@ -58,3 +58,16 @@ data:
 {{ .Values.authOrigin.scitokensConfLocal | indent 4 }}
   {{- end }}
 
+  {{ if .Values.multiUser.enabled -}}
+  60-helm-multiuser.cfg: |
+    if named xrootd
+      ofs.osslib ++ libXrdMultiuser.so
+    else
+      ofs.osslib libXrdMultiuser.so default
+    fi
+
+    # Enable the checksum wrapper
+    ofs.ckslib * libXrdMultiuser.so
+
+    xrootd.chksum max 2 md5 adler32 crc32
+  {{- end }}
