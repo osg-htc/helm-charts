@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "osdf-origin.fullname" . }}
+  labels:
+    app: {{ template "osdf-origin.name" . }}
+    release: {{ .Release.Name }}
+    instance: {{ .Values.Instance | quote }}
+data:
+  # The first public or auth origin export is declared in the environment;
+  # the rest are in a config file.
+  extra_exports.cfg: |
+    {{ if and .Values.publicOrigin.enabled .Values.publicOrigin.exports -}}
+    {{ if rest .Values.publicOrigin.exports -}}
+    if named stash-origin
+    {{- range (rest .Values.publicOrigin.exports) -}}
+      {{- printf "all.export %s" . | nindent 6 -}}
+    {{ end }}
+    fi
+    {{- else -}}
+    # No extra public exports given
+    {{- end }}
+    {{- end }}
+    {{ if and .Values.authOrigin.enabled .Values.authOrigin.exports -}}
+    {{ if rest .Values.authOrigin.exports -}}
+    if named stash-origin-auth
+    {{- range (rest .Values.authOrigin.exports) -}}
+      {{- printf "all.export %s" . | nindent 6 -}}
+    {{ end }}
+    fi
+    {{- else -}}
+    # No extra auth exports given
+    {{- end }}
+    {{- end }}
+
+  {{ if .Values.extraXrootdConfigBefore -}}
+  00-extra-before.cfg: |
+{{ .Values.extraXrootdConfigBefore | indent 4 }}
+  {{- end }}
+
+  {{ if .Values.extraXrootdConfigAfter -}}
+  99-extra-after.cfg: |
+{{ .Values.extraXrootdConfigAfter | indent 4 }}
+  {{- end }}
+
+  {{ if .Values.publicOrigin.authfileLocal -}}
+  stash-origin-Authfile.local: |
+{{ .Values.publicOrigin.authfileLocal | indent 4 }}
+  {{- end }}
+
+  {{ if .Values.authOrigin.authfileLocal -}}
+  stash-origin-auth-Authfile.local: |
+{{ .Values.authOrigin.authfileLocal | indent 4 }}
+  {{- end }}
+
+  {{ if .Values.authOrigin.scitokensConfLocal -}}
+  stash-origin-auth-scitokens.conf.local: |
+{{ .Values.authOrigin.scitokensConfLocal | indent 4 }}
+  {{- end }}
+
+  {{ if .Values.multiUser.enabled -}}
+  60-helm-multiuser.cfg: |
+    if named xrootd
+      ofs.osslib ++ libXrdMultiuser.so
+    else
+      ofs.osslib libXrdMultiuser.so default
+    fi
+
+    # Enable the checksum wrapper
+    ofs.ckslib * libXrdMultiuser.so
+
+    xrootd.chksum max 2 md5 adler32 crc32
+  {{- end }}

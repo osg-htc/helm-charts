@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "osdf-origin.fullname" . }}
+  labels:
+    app: {{ template "osdf-origin.name" . }}
+    release: {{ .Release.Name }}
+    instance: {{ .Values.Instance | quote }}
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.topologyFQDN | quote }}
+    {{- with .Values.serviceAnnotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+    {{- if .Values.publicOrigin.enabled }}
+    - port: {{ default 1094 .Values.publicOrigin.port }}
+      targetPort: 1094
+      protocol: TCP
+      name: xrootd-stash-origin
+    {{- end }}
+    {{- if .Values.authOrigin.enabled }}
+    - port: {{ default 1095 .Values.authOrigin.port }}
+      targetPort: 1095
+      protocol: TCP
+      name: xrootd-stash-origin-auth
+    {{- end }}
+  selector:
+    app: {{ template "osdf-origin.name" . }}
+    release: {{ .Release.Name }}
+    instance: {{ .Values.Instance | quote }}
