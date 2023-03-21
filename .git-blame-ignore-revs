@@ -1,0 +1,2 @@
+# git-blame ignore-revs file. Enter one full commit hash per line.
+# Set "blame.ignoreRevsFile = .git-blame-ignore-revs" in your Git config to skip those commits from the output of git blame.
