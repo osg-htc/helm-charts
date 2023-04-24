@@ -38,6 +38,9 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.hostNetwork }}
+      hostNetwork: true
+      {{- end }}
       volumes:
         {{- if .Values.dataVolumes }}
         {{- range .Values.dataVolumes }}

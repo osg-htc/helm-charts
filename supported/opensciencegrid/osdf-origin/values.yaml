@@ -126,6 +126,18 @@ multiUser:
 ## A secret containing the S3 keys for the experimental S3 plugin
 # s3KeysSecret: null
 
+# Optional service parameters
+service:
+  # Use a service to access deployment
+  enabled: true
+  type: LoadBalancer
+  clusterIP: ""
+  loadBalancerIP: ""
+  externalTrafficPolicy: Local
+
+## Enable hostNetwork mode
+hostNetwork: false
+
 ### SLATE-START ###
 SLATE:
   Instance:
