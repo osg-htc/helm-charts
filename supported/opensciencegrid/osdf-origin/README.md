@@ -99,6 +99,12 @@ explictly set `dataVolumes` to `[]`.
 | affinity | An affinity block for the deployment | |
 | serviceAnnotations | an annotations block for the service | |
 | s3KeysSecret | A secret containing the S3 keys for the experimental S3 plugin | |
+| hostNetwork | Enable hostNetwork mode | false |
+| service.enabled | Use a service to access deployment | true |
+| service.type | Service type | LoadBalancer |
+| service.externalTrafficPolicy | Service external traffic policy | Local |
+| service.clusterIP | Service cluster IP | "" |
+| service.loadBalancerIP | Service load balancer IP | "" |
 
 - Note 1: The liveness probe tests the auth origin instance if it's enabled, or the public origin instance if the auth origin is not enabled;
   turn off the probe if you are debugging so the pod doesn't get killed mid-debug
