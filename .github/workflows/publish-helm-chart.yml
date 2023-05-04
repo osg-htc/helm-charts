@@ -1,0 +1,20 @@
+name: Publish Helm Chart
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+    build-and-publish:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Publish Helm Chart
+              run: |
+                echo ${{secrets.OSG_HABOR_PASSWORD}} | helm registry login -u ${{secrets.OSG_HABOR_USER}} --password-stdin hub.opensciencegrid.org/osg-htc
+                helm_package_path=$(helm package supported/opensciencegrid/osdf-origin)
+                helm_package_name=$(basename "$helm_package_path")
+                helm push $helm_package_name oci://hub.opensciencegrid.org/osg-htc
