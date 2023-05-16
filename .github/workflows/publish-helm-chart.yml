@@ -6,21 +6,85 @@ on:
       - main
 
 jobs:
-    build-and-publish:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v3
-            
-            - name: Install Helm
-              run: |
-                curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-                chmod 700 get_helm.sh
-                ./get_helm.sh
+  build-helm-list:
+    runs-on: ubuntu-latest
+    outputs:
+      helmcharts: ${{ steps.helm-list.outputs.json }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-            - name: Publish Helm Chart
-              run: |
-                echo ${{secrets.OSG_HABOR_PASSWORD}} | helm registry login -u ${{secrets.OSG_HABOR_USER}} --password-stdin hub.opensciencegrid.org/osg-htc
-                helm_package_path=$(helm package supported/opensciencegrid/osdf-origin)
-                helm_package_name=$(basename "$helm_package_path")
-                helm push $helm_package_name oci://hub.opensciencegrid.org/osg-htc
+      - id: helm-list
+        run: |
+          ORG_DIR=helm-charts
+          # Get the list of files changed based on the type of event
+          # kicking off the GHA:
+          # 1. For the main branch, diff the previous state of main vs
+          #    the current commit
+          # 2. For other branches (i.e., on someone's fork), diff main
+          #    vs the current commit
+          # 3. For PRs, diff the base ref vs the current commit
+          # 4. For everything else (e.g., dispatches), build all charts
+          if [[ $GITHUB_EVENT_NAME == 'pull_request' ]] ||
+             [[ $GITHUB_EVENT_NAME == 'push' ]]; then
+               if [[ $GITHUB_EVENT_NAME == 'pull_request' ]]; then
+                   BASE=$(git merge-base origin/$GITHUB_BASE_REF HEAD)
+               elif [[ $GITHUB_REF == 'refs/heads/main' ]]; then
+                   BASE=${{github.event.before}}
+               else
+                   BASE=origin/main
+               fi
+               # List helm-chart root dirs where files have changed and the
+               # root dir exists. Example value:
+               # "helm-charts/supported helm-charts/contrib"
+               helmcharts=$(git diff --name-only \
+                                 "$BASE" \
+                                 "$GITHUB_SHA" |
+                        egrep "^$ORG_DIR/" |
+                        cut -d/ -f -2 |
+                        sort |
+                        uniq |
+                        xargs -I {} find . -type d \
+                                           -wholename ./{} \
+                                           -printf "%P\n")
+          else
+               # List all image root dirs. Example value:
+               # "helm-charts/supported helm-charts/contrib"
+               helmcharts=$(find $ORG_DIR -mindepth 1 \
+                                      -maxdepth 1 \
+                                      -type d \
+                                      -printf "$ORG_DIR/%P\n")
+          fi
+
+          # Ensure that the generated JSON array has a member,
+          # otherwise GHA will throw an error about an empty matrix
+          # vector in subsequent steps
+          helm_json=$(echo -n "${helmcharts:-dummy}" | jq -Rcs '.|split("\n")')
+          echo "::set-output name=json::$helm_json"
+
+  build-and-push:
+      runs-on: ubuntu-latest
+      needs: build-helm-list
+      if: >-
+        github.ref == 'refs/heads/main' &&
+        github.event_name != 'pull_request' &&
+        github.repository_owner == 'osg-htc' &&
+        needs.build-helm-list.outputs.helmcharts != '["dummy"]'
+      continue-on-error: true
+      steps:
+          - name: Checkout code
+            uses: actions/checkout@v3
+          
+          - name: Install Helm
+            run: |
+              curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+              chmod 700 get_helm.sh
+              ./get_helm.sh
+
+          - name: Build Helm Chart
+            run: |
+              echo ${{secrets.OSG_HABOR_PASSWORD}} | helm registry login -u ${{secrets.OSG_HABOR_USER}} --password-stdin hub.opensciencegrid.org/osg-htc
+              helm_package_path=$(helm package supported/opensciencegrid/osdf-origin)
+              helm_package_name=$(basename "$helm_package_path")
+              helm push $helm_package_name oci://hub.opensciencegrid.org/osdf-origin
