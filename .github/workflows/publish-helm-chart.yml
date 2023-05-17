@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-helm-list:
+  build-chart-list:
     runs-on: ubuntu-latest
     outputs:
       helmcharts: ${{ steps.helm-list.outputs.json }}
