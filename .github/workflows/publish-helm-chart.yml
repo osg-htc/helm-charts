@@ -84,7 +84,7 @@ jobs:
 
           - name: Build Helm Chart
             run: |
-              echo ${{secrets.OSG_HABOR_PASSWORD}} | helm registry login -u ${{secrets.OSG_HABOR_USER}} --password-stdin hub.opensciencegrid.org/osg-htc
+              echo ${{secrets.OSG_HABOR_PASSWORD}} | helm registry login -u ${{secrets.OSG_HABOR_USER}} --password-stdin hub.opensciencegrid.org
               helm_package_path=$(helm package supported/opensciencegrid/osdf-origin)
               helm_package_name=$(basename "$helm_package_path")
               helm push $helm_package_name oci://hub.opensciencegrid.org/osg-htc/osdf-origin
