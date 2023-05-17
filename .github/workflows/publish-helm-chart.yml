@@ -76,11 +76,11 @@ jobs:
           - name: Checkout code
             uses: actions/checkout@v3
           
-          - name: Install Helm
-            run: |
-              curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-              chmod 700 get_helm.sh
-              ./get_helm.sh
+          - name: Helm tool installer
+            uses: Azure/setup-helm@v3
+            with:
+              token: ${{ secrets.GITHUB_TOKEN }}
+            id: install
 
           - name: Build Helm Chart
             run: |
