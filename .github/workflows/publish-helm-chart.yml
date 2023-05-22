@@ -56,12 +56,16 @@ jobs:
 
   build-and-push:
       runs-on: ubuntu-latest
-      needs: build-chart-list
       if: >-
         github.ref == 'refs/heads/main' &&
         github.event_name != 'pull_request' &&
         github.repository_owner == 'osg-htc' &&
         needs.build-chart-list.outputs.helmcharts != '["dummy"]'
+      needs: build-chart-list
+      strategy:
+        fail-fast: false
+        matrix:
+          helmchart: ${{ fromJson(needs.build-chart-list.outputs.helmcharts) }}
       continue-on-error: true
       steps:
           - name: Checkout code
@@ -76,6 +80,6 @@ jobs:
           - name: Build Helm Chart
             run: |
               echo ${{secrets.OSG_HABOR_PASSWORD}} | helm registry login -u ${{secrets.OSG_HABOR_USER}} --password-stdin hub.opensciencegrid.org
-              helm_package_path=$(helm package supported/opensciencegrid/osdf-origin)
+              helm_package_path=$(helm package ${{matrix.helmchart}})
               helm_package_name=$(basename "$helm_package_path")
               helm push $helm_package_name oci://hub.opensciencegrid.org/osg-htc/osdf-origin
