@@ -17,7 +17,8 @@ jobs:
 
       - id: helm-list
         run: |
-          ORG_DIR=helm-charts
+          SUPPORTED_DIR=supported
+          CONTRIB_DIR=contrib
           # Get the list of files changed based on the type of event
           # kicking off the GHA:
           # 1. For the main branch, diff the previous state of main vs
@@ -40,14 +41,13 @@ jobs:
                helmcharts=$(git diff --name-only \
                                  "$BASE" \
                                  "$GITHUB_SHA" |
-                        egrep "^$ORG_DIR/" |
-                        cut -d/ -f -2 |
+                        egrep "$SUPPORTED_DIR/"|"$CONTRIB_DIR/" |
                         sort |
                         uniq |
                         xargs -I {} find . -type d \
                                            -wholename ./{} \
                                            -printf "%P\n")
-
+          fi
           # Ensure that the generated JSON array has a member,
           # otherwise GHA will throw an error about an empty matrix
           # vector in subsequent steps
