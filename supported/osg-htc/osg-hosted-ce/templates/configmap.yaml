@@ -74,6 +74,34 @@ data:
     SLATE_HOSTED_CE = True
     SCHEDD_ATTRS = $(SCHEDD_ATTRS) SLATE_HOSTED_CE
 
+    # Templatize IDTOKEN generation for glidein -> CE collector advertising (SOFTWARE-5556)
+    {{- range $index, $map := .Values.SciTokenRemoteUserMapping }}
+    {{- range $url, $user := $map }}
+    JOB_ROUTER_CREATE_IDTOKEN_{{ $user }} @=end
+      sub = "{{ $user }}@users.htcondor.org"
+      kid = "POOL"
+      lifetime = 604800
+      scope = "ADVERTISE_STARTD, ADVERTISE_MASTER, READ"
+      dir = "/usr/share/condor-ce/glidein-tokens/{{ $user }}"
+      filename = "ce_{{ $user }}.idtoken"
+      owner = "{{ $user }}"
+    @end
+    JOB_ROUTER_CREATE_IDTOKEN_NAMES = $(JOB_ROUTER_CREATE_IDTOKEN_NAMES) {{ $user }}
+    {{- end }}
+    {{- end }}
+
+    # Refresh IDTOKENs every 15 minutes
+    JOB_ROUTER_IDTOKEN_REFRESH = 900
+
+    # We don't use 'SendIDToken = token-name"' here because it's a route command,
+    # not a job attr, meaning that it would have to be specified per route
+    JOB_ROUTER_DEFAULTS @=jrd
+    $(JOB_ROUTER_DEFAULTS)
+    [
+      eval_set_TransferInput = strcat(TransferInput,",/usr/share/condor-ce/glidein-tokens/", Owner, "/ce_", OWNER, ".idtoken");
+    ]
+    @jrd
+
     # HACK: The job router doesn't recognize grid universe routes (the default) without
     # a "GridResource" attribute and the Gridmanager doesn't evaluate GridResource expressions.
     # So we set a dummy "GridResource" attribute and use "eval_set_GridResource"  to force the
