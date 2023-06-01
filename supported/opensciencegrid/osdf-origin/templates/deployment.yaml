@@ -54,8 +54,14 @@ spec:
           hostPath:
             path: {{ .hostPath }}
             type: Directory
+          {{- else if .cephfs }}
+          cephfs:
+            monitors: {{ .cephfs.monitors }}
+            user: {{ .cephfs.user }}
+            secretRef:
+              name: {{ .cephfs.secretRef.name }}
           {{- else }}
-            {{- fail "Specify either claimName or hostPath" -}}
+            {{- fail "Specify claimName, hostPath, or cephfs" -}}
           {{- end }}
         {{- end }}
         {{- end }}
