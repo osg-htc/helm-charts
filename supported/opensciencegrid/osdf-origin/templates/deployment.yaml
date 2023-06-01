@@ -61,7 +61,7 @@ spec:
             secretRef:
               name: {{ .cephfs.secretRef.name }}
           {{- else }}
-            {{- fail "Specify either claimName or hostPath" -}}
+            {{- fail "Specify claimName, hostPath, or cephfs" -}}
           {{- end }}
         {{- end }}
         {{- end }}
