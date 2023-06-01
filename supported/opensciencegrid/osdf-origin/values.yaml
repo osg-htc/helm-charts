@@ -50,6 +50,14 @@ authOrigin:
     # Choose one:
     #claimName: "osdf-origin-data"
     #hostPath: "/mnt/stash/origin-data"
+    #cephfs: 
+    #  monitors: 
+    #    - mon01
+    #    - mon02
+    #    - mon03
+    #  user: "user"
+    #  secretRef: 
+    #    name: secretName
 
 ## Uncomment and fill out for extra xrootd config lines, added before the OSG-provided config
 # extraXrootdConfigBefore: |-
