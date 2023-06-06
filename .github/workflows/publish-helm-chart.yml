@@ -57,11 +57,7 @@ jobs:
 
   build-and-push:
       runs-on: ubuntu-latest
-      if: >-
-        github.ref == 'refs/heads/main' &&
-        github.event_name != 'pull_request' &&
-        github.repository_owner == 'osg-htc' &&
-        needs.build-chart-list.outputs.helmcharts != '["dummy"]'
+      if: needs.build-chart-list.outputs.helmcharts != '["dummy"]'
       needs: build-chart-list
       strategy:
         fail-fast: false
@@ -77,6 +73,15 @@ jobs:
             with:
               token: ${{ secrets.GITHUB_TOKEN }}
             id: install
+
+          - name: Helm Chart Linter
+            if: >-
+              github.ref == 'refs/heads/main' &&
+              github.event_name != 'pull_request' &&
+              github.repository_owner == 'osg-htc'
+            run: |
+              echo ${{secrets.OSG_HABOR_PASSWORD}} | helm registry login -u ${{secrets.OSG_HABOR_USER}} --password-stdin hub.opensciencegrid.org
+              helm lint ${{matrix.helmchart}}
 
           - name: Build Helm Chart
             run: |
