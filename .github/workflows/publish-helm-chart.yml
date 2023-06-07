@@ -42,7 +42,7 @@ jobs:
                helmcharts=$(git diff --name-only \
                                  "$BASE" \
                                  "$GITHUB_SHA" |
-                        egrep "$SUPPORTED_DIR/"|"$CONTRIB_DIR/" |
+                        cut -d/ -f -3 |
                         sort |
                         uniq |
                         xargs -I {} find . -type d \
