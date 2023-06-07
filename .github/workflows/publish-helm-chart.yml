@@ -80,8 +80,8 @@ jobs:
 
           - name: Build Helm Chart
             run: |
-              helm_package_path=$(helm package ${{matrix.helmchart}})
-              helm_package_name=$(basename "$helm_package_path")
+              helm lint ${{matrix.helmchart}}
+              helm package ${{matrix.helmchart}}
 
           - name: Push Helm chart
             if: >-
@@ -90,5 +90,7 @@ jobs:
               github.repository_owner == 'osg-htc'
             run: |
               echo ${{secrets.OSG_HABOR_PASSWORD}} | helm registry login -u ${{secrets.OSG_HABOR_USER}} --password-stdin hub.opensciencegrid.org
-              helm_package_name=$(basename "$helm_package_path")
-              helm push $helm_package_name oci://hub.opensciencegrid.org/osg-htc/osdf-origin 
+              helm_chart_name=$(basename ${{matrix.helmchart}})
+              helm_chart_package=$(helm package ${{matrix.helmchart}})
+              helm_chart_tarball=$(basename "$helm_chart_package")
+              helm push $helm_chart_tarball oci://hub.opensciencegrid.org/osg-htc/$helm_chart_name
