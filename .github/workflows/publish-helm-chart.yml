@@ -53,7 +53,7 @@ jobs:
           # otherwise GHA will throw an error about an empty matrix
           # vector in subsequent steps
           chart_json=$(echo -n "${chartpaths:-dummy}" | jq -Rcs '.|split("\n")')
-          echo "::set-output name=json::$chart_json"
+          echo "json=${chart_json}" >> $GITHUB_OUTPUT
 
   build-and-push:
       runs-on: ubuntu-latest
