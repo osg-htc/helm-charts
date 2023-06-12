@@ -88,8 +88,8 @@ jobs:
               github.event_name != 'pull_request' &&
               github.repository_owner == 'osg-htc'
             run: |
-              echo ${{secrets.OSG_HABOR_PASSWORD}} \
-                  | helm registry login -u ${{secrets.OSG_HABOR_USER}} \
+              echo ${{secrets.OSG_HARBOR_PASSWORD}} \
+                  | helm registry login -u ${{secrets.OSG_HARBOR_USER}} \
                                         --password-stdin \
                                         hub.opensciencegrid.org
               chart_dest=$(echo ${{matrix.chartpath}} | cut -d/ -f -2-3)
