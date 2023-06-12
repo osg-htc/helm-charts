@@ -18,8 +18,6 @@ jobs:
 
       - id: helm-list
         run: |
-          SUPPORTED_DIR=supported
-          CONTRIB_DIR=contrib
           # Get the list of files changed based on the type of event
           # kicking off the GHA:
           # 1. For the main branch, diff the previous state of main vs
