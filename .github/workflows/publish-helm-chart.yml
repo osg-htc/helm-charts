@@ -63,7 +63,6 @@ jobs:
         fail-fast: false
         matrix:
           helmchart: ${{ fromJson(needs.build-chart-list.outputs.helmcharts) }}
-      continue-on-error: true
       steps:
           - name: Checkout code
             uses: actions/checkout@v3
