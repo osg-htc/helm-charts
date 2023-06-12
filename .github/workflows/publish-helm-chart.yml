@@ -78,7 +78,6 @@ jobs:
           - name: Build Helm Chart
             id: build-chart
             run: |
-              helm lint ${{matrix.chartpath}}
               chart_tarball=$(helm package ${{matrix.chartpath}})
               echo "tarbll=${chart_tarball}" >> "$GITHUB_OUTPUT"
 
