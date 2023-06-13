@@ -50,8 +50,9 @@ You list data volumes in the `dataVolumes` parameter, with the following options
 | --------  | ----------  | ------- |
 | name | A name to use in the deployment | xcache-namespace |
 | mountPath | Where the volume should be mounted, relative to `/xcache/namespace` (the root dir of the service) | / |
-| claimName | The name of the PVC to use for the volume; mutually exclusive with hostPath | |
-| hostPath | The path on the Kubernetes node to use for the volume; mutually exclusive with claimName | |
+| claimName | The name of the PVC to use for the volume; mutually exclusive with hostPath and cephfs | |
+| hostPath | The path on the Kubernetes node to use for the volume; mutually exclusive with claimName and cephfs | |
+| cephfs | A CephFS volume to use for the volume; mutually exclusive with claimName and hostPath | |
 
 If your data is served externally (e.g. with the experimental S3 plugin) then you may not have any dataVolumes;
 explictly set `dataVolumes` to `[]`.
