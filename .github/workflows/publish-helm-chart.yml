@@ -10,16 +10,14 @@ jobs:
   build-chart-list:
     runs-on: ubuntu-latest
     outputs:
-      helmcharts: ${{ steps.helm-list.outputs.json }}
+      chartpaths: ${{ steps.helm-list.outputs.json }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - id: helm-list
         run: |
-          SUPPORTED_DIR=supported
-          CONTRIB_DIR=contrib
           # Get the list of files changed based on the type of event
           # kicking off the GHA:
           # 1. For the main branch, diff the previous state of main vs
@@ -39,7 +37,7 @@ jobs:
                # List helm-chart root dirs where files have changed and the
                # root dir exists. Example value:
                # "helm-charts/supported helm-charts/contrib"
-               helmcharts=$(git diff --name-only \
+               chartpaths=$(git diff --name-only \
                                  "$BASE" \
                                  "$GITHUB_SHA" |
                         cut -d/ -f -3 |
@@ -52,36 +50,36 @@ jobs:
           # Ensure that the generated JSON array has a member,
           # otherwise GHA will throw an error about an empty matrix
           # vector in subsequent steps
-          helm_json=$(echo -n "${helmcharts:-dummy}" | jq -Rcs '.|split("\n")')
-          echo "::set-output name=json::$helm_json"
+          chart_json=$(echo -n "${chartpaths:-dummy}" | jq -Rcs '.|split("\n")')
+          echo "json=${chart_json}" >> $GITHUB_OUTPUT
 
   build-and-push:
       runs-on: ubuntu-latest
-      if: needs.build-chart-list.outputs.helmcharts != '["dummy"]'
+      if: needs.build-chart-list.outputs.chartpaths != '["dummy"]'
       needs: build-chart-list
       strategy:
         fail-fast: false
         matrix:
-          helmchart: ${{ fromJson(needs.build-chart-list.outputs.helmcharts) }}
-      continue-on-error: true
+          chartpath: ${{ fromJson(needs.build-chart-list.outputs.chartpaths) }}
       steps:
           - name: Checkout code
             uses: actions/checkout@v3
-          
+
           - name: Helm tool installer
             uses: Azure/setup-helm@v3
             with:
-              token: ${{ secrets.GITHUB_TOKEN }}
+              version: 'v3.12.0'
             id: install
 
           - name: Helm Chart Linter
             run: |
-              helm lint ${{matrix.helmchart}}
+              helm lint ${{matrix.chartpath}}
 
           - name: Build Helm Chart
+            id: build-chart
             run: |
-              helm lint ${{matrix.helmchart}}
-              helm package ${{matrix.helmchart}}
+              chart_tarball=$(helm package ${{matrix.chartpath}})
+              echo "tarball=${chart_tarball}" >> "$GITHUB_OUTPUT"
 
           - name: Push Helm chart
             if: >-
@@ -89,8 +87,10 @@ jobs:
               github.event_name != 'pull_request' &&
               github.repository_owner == 'osg-htc'
             run: |
-              echo ${{secrets.OSG_HABOR_PASSWORD}} | helm registry login -u ${{secrets.OSG_HABOR_USER}} --password-stdin hub.opensciencegrid.org
-              helm_chart_name=$(basename ${{matrix.helmchart}})
-              helm_chart_package=$(helm package ${{matrix.helmchart}})
-              helm_chart_tarball=$(basename "$helm_chart_package")
-              helm push $helm_chart_tarball oci://hub.opensciencegrid.org/osg-htc/$helm_chart_name
+              echo ${{secrets.OSG_HARBOR_PASSWORD}} \
+                  | helm registry login -u ${{secrets.OSG_HARBOR_USER}} \
+                                        --password-stdin \
+                                        hub.opensciencegrid.org
+              chart_dest=$(echo ${{matrix.chartpath}} | cut -d/ -f -2-3)
+              helm push ${{ steps.build-chart.outputs.tarball }} \
+                        oci://hub.opensciencegrid.org/${chart_dest}
