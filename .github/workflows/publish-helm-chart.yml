@@ -91,6 +91,6 @@ jobs:
                   | helm registry login -u ${{secrets.OSG_HARBOR_USER}} \
                                         --password-stdin \
                                         hub.opensciencegrid.org
-              chart_dest=$(echo ${{matrix.chartpath}} | cut -d/ -f -2-3)
+              chart_dest=$(echo ${{matrix.chartpath}} | cut -d/ -f 2-3)
               helm push ${{ steps.build-chart.outputs.tarball }} \
                         oci://hub.opensciencegrid.org/${chart_dest}
