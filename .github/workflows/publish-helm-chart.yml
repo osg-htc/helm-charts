@@ -78,7 +78,7 @@ jobs:
           - name: Build Helm Chart
             id: build-chart
             run: |
-              chart_tarball=$(helm package ${{matrix.chartpath}})
+              chart_tarball=$(helm package ${{matrix.chartpath}} | awk '{print $NF}')
               echo "tarball=${chart_tarball}" >> "$GITHUB_OUTPUT"
 
           - name: Push Helm chart
