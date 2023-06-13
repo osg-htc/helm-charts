@@ -79,7 +79,7 @@ jobs:
             id: build-chart
             run: |
               chart_tarball=$(helm package ${{matrix.chartpath}})
-              echo "tarbll=${chart_tarball}" >> "$GITHUB_OUTPUT"
+              echo "tarball=${chart_tarball}" >> "$GITHUB_OUTPUT"
 
           - name: Push Helm chart
             if: >-
