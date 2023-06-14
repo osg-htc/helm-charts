@@ -78,7 +78,14 @@ jobs:
           - name: Build Helm Chart
             id: build-chart
             run: |
-              chart_tarball=$(helm package ${{matrix.chartpath}})
+              # Extract tarball name from a line that looks like
+              # Successfully packaged chart and saved it to: /home/blin/vcs/images/osg-helm-charts/supported/osg-htc/osdf-origin/osdf-origin-0.29.tgz
+              helm_package_success_message=$(helm package ${{matrix.chartpath}} | grep -m1 '^Success')
+              chart_tarball=${helm_package_success_message#*': '}  # delete up to and including ': '
+              if [[ ! $chart_tarball ]]; then
+                  echo "helm package failed" >&2
+                  exit 1
+              fi
               echo "tarball=${chart_tarball}" >> "$GITHUB_OUTPUT"
 
           - name: Push Helm chart
