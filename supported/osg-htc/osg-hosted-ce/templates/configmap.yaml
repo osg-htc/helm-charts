@@ -77,7 +77,8 @@ data:
     # Templatize IDTOKEN generation for glidein -> CE collector advertising (SOFTWARE-5556)
     {{- range $index, $map := .Values.SciTokenRemoteUserMapping }}
     {{- range $url, $user := $map }}
-    JOB_ROUTER_CREATE_IDTOKEN_{{ $user }} @=end
+    # N.B. Special chars in a helm template regex need to be escaped with '\\'
+    JOB_ROUTER_CREATE_IDTOKEN_{{ mustRegexReplaceAll "[^A-Za-z0-9_]" "$user" "_" }} @=end
       sub = "{{ $user }}@users.htcondor.org"
       kid = "POOL"
       lifetime = 604800
