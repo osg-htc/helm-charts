@@ -78,7 +78,7 @@ data:
     {{- range $index, $map := .Values.SciTokenRemoteUserMapping }}
     {{- range $url, $user := $map }}
     # N.B. Special chars in a helm template regex need to be escaped with '\\'
-    JOB_ROUTER_CREATE_IDTOKEN_{{ mustRegexReplaceAll "[^A-Za-z0-9_]" "$user" "_" }} @=end
+    JOB_ROUTER_CREATE_IDTOKEN_{{ mustRegexReplaceAll "[^A-Za-z0-9_]" $user "_" }} @=end
       sub = "{{ $user }}@users.htcondor.org"
       kid = "POOL"
       lifetime = 604800
@@ -87,7 +87,7 @@ data:
       filename = "ce_{{ $user }}.idtoken"
       owner = "{{ $user }}"
     @end
-    JOB_ROUTER_CREATE_IDTOKEN_NAMES = $(JOB_ROUTER_CREATE_IDTOKEN_NAMES) {{ $user }}
+    JOB_ROUTER_CREATE_IDTOKEN_NAMES = $(JOB_ROUTER_CREATE_IDTOKEN_NAMES) {{ mustRegexReplaceAll "[^A-Za-z0-9_]" $user "_" }}
     {{- end }}
     {{- end }}
 
