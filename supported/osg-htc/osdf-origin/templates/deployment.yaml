@@ -66,10 +66,14 @@ spec:
         {{- end }}
         {{- end }}
 
-        {{- if .Values.hostCertKeySecret }}
+        {{- if or .Values.certmanager.enabled .Values.hostCertKeySecret }}
         - name: hostcertkey
           secret:
+            {{- if .Values.certmanager.enabled }}
+            secretName: {{ template "osdf-origin.name"}}-cert
+            {{- else if .Values.hostCertKeySecret }}
             secretName: {{ .Values.hostCertKeySecret }}
+            {{- end }}
             items:
             - key: tls.crt
               path: hostcert.pem
@@ -180,7 +184,7 @@ spec:
             - mountPath: /xcache/namespace{{ .mountPath }}
               name: {{ .name }}
             {{ end }}
-            {{- if .Values.hostCertKeySecret }}
+            {{- if or .Values.certmanager.enabled .Values.hostCertKeySecret }}
             - mountPath: /etc/grid-security/hostcert.pem
               name: hostcertkey
               subPath: hostcert.pem

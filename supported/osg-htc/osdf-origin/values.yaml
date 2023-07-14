@@ -8,7 +8,12 @@ fullnameOverride: ""
 topologyResourceName: "TestOrigin"
 topologyFQDN: "testorigin.example.net"
 
-# run 'slate secret create --help' for usage
+# Use CertManager for the OSDF Origin host cert
+certmanager:
+  enabled: false
+  issuerName: null
+
+# If not using CertManager, you must provide a host certificate as a secret
 # hostCertKeySecret is the name of the secret containing a host key and certificate in
 # "tls.key" and "tls.crt", respectively.
 hostCertKeySecret: null
