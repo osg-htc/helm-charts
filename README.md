@@ -17,3 +17,7 @@ Below that, the directories are `PROJECT/CHART` where `PROJECT` denotes the Harb
 and `CHART` denotes the chart name.
 For example, `/supported/opensciencegrid/osdf-origin` is the path to the `osdf-origin` chart in the `opensciencegrid` project,
 and is supported by OSG Staff.
+
+## Conventions
+
+Charts MUST be versioned using [Semantic Versioning](https://semver.org) due to [Helm restrictions](https://github.com/helm/helm/issues/10697#issuecomment-1048070781).
