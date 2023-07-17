@@ -9,6 +9,6 @@ spec:
   dnsNames:
   - {{ .Values.topologyFQDN }}
   issuerRef:
-    name: letsencrypt-prod-newchain
+    name: {{ .Values.certmanager.issuerName }}
     kind: ClusterIssuer
 {{ end }}
