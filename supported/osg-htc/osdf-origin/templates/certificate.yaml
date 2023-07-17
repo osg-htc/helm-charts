@@ -5,10 +5,10 @@ kind: Certificate
 metadata:
   name: {{ include "osdf-origin.fullname" . }}
 spec:
-  secretName: {{ template "osdf-origin.name"}}-cert
+  secretName: {{ template "osdf-origin.name" . }}-cert
   dnsNames:
   - {{ .Values.topologyFQDN }}
   issuerRef:
-    name: letsencrypt-prod-newchain
+    name: {{ .Values.certmanager.issuerName }}
     kind: ClusterIssuer
 {{ end }}
