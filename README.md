@@ -17,3 +17,8 @@ Below that, the directories are `PROJECT/CHART` where `PROJECT` denotes the Harb
 and `CHART` denotes the chart name.
 For example, `/supported/opensciencegrid/osdf-origin` is the path to the `osdf-origin` chart in the `opensciencegrid` project,
 and is supported by OSG Staff.
+
+## Conventions
+
+All Helm charts are *required* to have 3 numbers in their version (x.y.z).
+Use of [Semantic Versioning](https://semver.org) is recommended.
