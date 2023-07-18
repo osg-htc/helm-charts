@@ -70,7 +70,7 @@ spec:
         - name: hostcertkey
           secret:
             {{- if .Values.certmanager.enabled }}
-            secretName: {{ template "osdf-origin.name" . }}-cert
+            secretName: {{ .Values.Instance }}-cert
             {{- else if .Values.hostCertKeySecret }}
             secretName: {{ .Values.hostCertKeySecret }}
             {{- end }}

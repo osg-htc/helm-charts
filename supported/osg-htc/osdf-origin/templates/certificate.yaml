@@ -5,7 +5,7 @@ kind: Certificate
 metadata:
   name: {{ include "osdf-origin.fullname" . }}
 spec:
-  secretName: {{ template "osdf-origin.name" . }}-cert
+  secretName: {{ .Values.Instance }}-cert
   dnsNames:
   - {{ .Values.topologyFQDN }}
   issuerRef:
