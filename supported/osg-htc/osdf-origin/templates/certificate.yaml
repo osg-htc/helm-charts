@@ -3,9 +3,9 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: {{ include "osdf-origin.fullname" . }}
+  name: {{ template "osdf-origin.fullname" . }}
 spec:
-  secretName: {{ template "osdf-origin.name" . }}-cert
+  secretName: {{ template "osdf-origin.fullname" . }}-cert
   dnsNames:
   - {{ .Values.topologyFQDN }}
   issuerRef:

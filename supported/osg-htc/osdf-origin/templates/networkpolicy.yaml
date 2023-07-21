@@ -2,11 +2,13 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-{{ template "osdf-origin.name" . }}
+  name: allow-{{ template "osdf-origin.fullname" . }}
 spec:
   podSelector:
     matchLabels:
       app: {{ template "osdf-origin.name" . }}
+      release: {{ .Release.Name }}
+      instance: {{ template "osdf-origin.fullname" . }}
   policyTypes:
     - Ingress
     - Egress

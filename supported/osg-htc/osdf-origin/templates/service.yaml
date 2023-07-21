@@ -6,7 +6,7 @@ metadata:
   labels:
     app: {{ template "osdf-origin.name" . }}
     release: {{ .Release.Name }}
-    instance: {{ .Values.Instance | quote }}
+    instance: {{ template "osdf-origin.fullname" . }}
   annotations:
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.topologyFQDN | quote }}
     {{- with .Values.serviceAnnotations }}
@@ -39,5 +39,5 @@ spec:
   selector:
     app: {{ template "osdf-origin.name" . }}
     release: {{ .Release.Name }}
-    instance: {{ .Values.Instance | quote }}
+    instance: {{ template "osdf-origin.fullname" . }}
 {{- end }}
