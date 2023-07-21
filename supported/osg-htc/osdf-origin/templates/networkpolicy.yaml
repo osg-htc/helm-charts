@@ -8,7 +8,7 @@ spec:
     matchLabels:
       app: {{ template "osdf-origin.name" . }}
       release: {{ .Release.Name }}
-      instance: {{ template "osdf-origin.fullname" . | quote }}
+      instance: {{ template "osdf-origin.fullname" . }}
   policyTypes:
     - Ingress
     - Egress

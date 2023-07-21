@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ template "osdf-origin.name" . }}
     release: {{ .Release.Name }}
-    instance: {{ template "osdf-origin.fullname" . | quote }}
+    instance: {{ template "osdf-origin.fullname" . }}
 data:
   # The first public or auth origin export is declared in the environment;
   # the rest are in a config file.

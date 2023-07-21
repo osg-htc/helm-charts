@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ template "osdf-origin.name" . }}
     release: {{ .Release.Name }}
-    instance: {{ template "osdf-origin.fullname" . | quote }}
+    instance: {{ template "osdf-origin.fullname" . }}
 spec:
   replicas: 1
   strategy:
@@ -14,13 +14,13 @@ spec:
     matchLabels:
       app: {{ template "osdf-origin.name" . }}
       release: {{ .Release.Name }}
-      instance: {{ template "osdf-origin.fullname" . | quote }}
+      instance: {{ template "osdf-origin.fullname" . }}
   template:
     metadata:
       labels:
         app: {{ template "osdf-origin.name" . }}
         release: {{ .Release.Name }}
-        instance: {{ template "osdf-origin.fullname" . | quote }}
+        instance: {{ template "osdf-origin.fullname" . }}
 
     spec:
       {{- if .Values.nodeName }}
