@@ -75,6 +75,61 @@ jobs:
             run: |
               helm lint ${{matrix.chartpath}}
 
+          - name: Helm Chart Version Check
+            run: |
+              # old_chart_version diffs commit that triggered workflow against previous 
+              # commit. Pulls out version number of the existing chart or "old chart".
+              # The git diff gives spits out both version numbers, head -2 | tail -1
+              # Grabs the value on the second line. 
+              old_chart_version=$(git diff ${{ github.sha }} \
+               ${{github.event.before}} -- ${{matrix.chartpath}} | 
+               grep 'version:' | awk '/version:/ {print $2}' | head -2 | 
+               tail -1 | tr -d '"')
+
+              # Grabs the chart version number out of the chart that needs
+              # to be checked. 
+              new_chart_version=$(helm show chart ${{matrix.chartpath}} | 
+              grep 'version:' | awk '/version:/ {print $2}')
+
+              # Takes the version numbers and replaces dots with zeroes.
+              old_version=$(echo "$old_chart_version" | awk -F. '{ printf("%d%03d%03d", $1,$2,$3); }')
+              new_version=$(echo "$new_chart_version" | awk -F. '{ printf("%d%03d%03d", $1,$2,$3); }')
+
+              # Null result indicates chart has not changed
+              if [[ -z $old_chart_version ]]; then 
+                echo "Chart version number has not changed." 
+                exit 0
+              fi
+
+              # Compares version numbers
+              if [[ $new_version -gt $old_version ]]; then
+                  echo "This chart's version number is newer than the existing chart."
+                  exit 0
+              elif [[ $new_version -lt $old_version ]]; then
+                  echo "This chart's version number is older than the existing chart."
+                  exit 1
+              fi
+
+          - name: SEMVER Check
+            run: | #Checks Chart Version Number against SEMVER regex
+              version=$(helm show chart ${{matrix.chartpath}} | 
+              grep 'version:' | awk '/version:/ {print $2}')
+
+              semver_regex=$"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\
+              (-(0|[1-9A-Za-z-][0-9A-Za-z-]*)(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]\
+              +(\.[0-9A-Za-z-]+)*)?$"
+
+              if [[ $version =~ $semver_regex ]]; then
+                echo "$version uses SEMVER"
+              else
+                echo "$version is not using SEMVER"
+                exit 1
+              fi 
+
+          - name: Helm Template Check
+            run: |
+              helm template ${{matrix.chartpath}}
+
           - name: Build Helm Chart
             id: build-chart
             run: |
