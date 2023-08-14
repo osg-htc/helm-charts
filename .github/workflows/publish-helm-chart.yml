@@ -107,9 +107,11 @@ jobs:
               # The git diff gives spits out both version numbers, head -2 | tail -1
               # Grabs the value on the second line. 
               old_chart_version=$(git diff "$BASE" \
-              ${{ github.sha }} -- ${{matrix.chartpath}} | 
-               awk '/version:/ {print $2}' | head -2 | 
-               tail -1 | tr -d '"')
+               ${{ github.sha }} -- ${{matrix.chartpath}} | 
+               awk '/version:/ {print $2}' | 
+               head -2 | 
+               tail -1 | 
+               tr -d '"')
 
               # Grabs the chart version number out of the chart that needs
               # to be checked. 
