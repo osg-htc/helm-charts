@@ -82,7 +82,7 @@ jobs:
               helm lint ${{matrix.chartpath}}
             
           - name: SEMVER Check
-            #Checks Chart Version Number against SEMVER regex
+            # Checks Chart Version Number against SEMVER regex
             run: | 
               version=$(helm show chart ${{matrix.chartpath}} | 
               awk '/version:/ {print $2}')
