@@ -87,6 +87,7 @@ jobs:
               version=$(helm show chart ${{matrix.chartpath}} | 
               awk '/version:/ {print $2}')
 
+              # Checks for semantic versioning specification, https://semver.org/
               semver_regex="^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\
               (-(0|[1-9A-Za-z-][0-9A-Za-z-]*)(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]\
               +(\.[0-9A-Za-z-]+)*)?$"
@@ -108,7 +109,7 @@ jobs:
               # Grabs the value on the second line. 
               old_chart_version=$(git diff "$BASE" ${{ github.sha }} -- ${{matrix.chartpath}} | 
                                   awk '/version:/ {print $2}' | 
-                                  head -2 | 
+                                  head -1 | 
                                   tail -1 | 
                                   tr -d '"')
 
@@ -117,22 +118,20 @@ jobs:
               new_chart_version=$(helm show chart ${{matrix.chartpath}} | 
               awk '/version:/ {print $2}')
 
-              # Takes the version numbers and replaces dots with zeroes.
-              old_version=$(sed 's/\./0/g' <<< "$old_chart_version")
-              new_version=$(sed 's/\./0/g' <<< "$new_chart_version")
+              # Checks if the new chart version number
+              # is > than the existing chart.
+              sortversion() {
+                  [  "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]
+              }
 
-              # Null result indicates chart has not changed
-              if [[ -z $old_chart_version ]]; then 
-                echo "Chart version number must be increased." 
-                exit 1
-              fi
+              versioncheck() {
+                  [ "$1" = "$2" ] && return 1 || sortversion $1 $2
+              }
 
-              # Compares version numbers
-              if [[ $new_version -gt $old_version ]]; then
-                  echo "This chart's version number is newer than the existing chart."
-                  exit 0
-              elif [[ $new_version -lt $old_version ]]; then
-                  echo "This chart's version number is older than the existing chart."
+              if versioncheck $old_chart_version $new_chart_version; then
+                  echo "Helm chart version updated."
+              else
+                  echo "Helm chart version needs to be updated!"
                   exit 1
               fi
 
