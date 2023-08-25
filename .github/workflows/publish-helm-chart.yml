@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       chartpaths: ${{ steps.helm-list.outputs.json }}
+      BASE: ${{steps.helm-list.outputs.basecommit}}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -29,10 +30,13 @@ jobs:
              [[ $GITHUB_EVENT_NAME == 'push' ]]; then
                if [[ $GITHUB_EVENT_NAME == 'pull_request' ]]; then
                    BASE=$(git merge-base origin/$GITHUB_BASE_REF HEAD)
+                   echo "basecommit=$BASE" >> $GITHUB_OUTPUT 
                elif [[ $GITHUB_REF == 'refs/heads/main' ]]; then
                    BASE=${{github.event.before}}
+                   echo "basecommit=$BASE" >> $GITHUB_OUTPUT 
                else
                    BASE=origin/main
+                   echo "basecommit=$BASE" >> $GITHUB_OUTPUT 
                fi
                # List helm-chart root dirs where files have changed and the
                # root dir exists. Example value:
@@ -64,6 +68,8 @@ jobs:
       steps:
           - name: Checkout code
             uses: actions/checkout@v3
+            with:
+              fetch-depth: 0
 
           - name: Helm tool installer
             uses: Azure/setup-helm@v3
@@ -74,6 +80,64 @@ jobs:
           - name: Helm Chart Linter
             run: |
               helm lint ${{matrix.chartpath}}
+            
+          - name: SEMVER Check
+            # Checks Chart Version Number against SEMVER regex
+            run: | 
+              version=$(helm show chart ${{matrix.chartpath}} | 
+                        awk '/version:/ {print $2}')
+
+              # Checks for semantic versioning specification, https://semver.org/
+              semver_regex="^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\
+              (-(0|[1-9A-Za-z-][0-9A-Za-z-]*)(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]\
+              +(\.[0-9A-Za-z-]+)*)?$"
+
+              if [[ $version =~ $semver_regex ]]; then
+                echo "$version uses SEMVER, https://semver.org/"
+              else
+                echo "$version is not using SEMVER, https://semver.org/"
+                exit 1
+              fi 
+
+          - name: Helm Chart Version Check
+            env: 
+              BASE: ${{needs.build-chart-list.outputs.BASE}}
+            run: |
+              # old_chart_version diffs commit that triggered workflow against previous 
+              # commit. Pulls out version number of the existing chart or "old chart".
+              # The git diff gives spits out both version numbers, head -2 | tail -1
+              # Grabs the value on the second line. 
+              old_chart_version=$(git diff "$BASE" ${{ github.sha }} -- ${{matrix.chartpath}} | 
+                                  awk '/version:/ {print $2}' | 
+                                  head -1 | 
+                                  tail -1 | 
+                                  tr -d '"')
+
+              # Grabs the chart version number out of the chart that needs
+              # to be checked. 
+              new_chart_version=$(helm show chart ${{matrix.chartpath}} | 
+                                  awk '/version:/ {print $2}')
+
+              # Checks if the new chart version number
+              # is > than the existing chart.
+              versioncheck() {
+                if [ "$1" == "$2" ]; then
+                    return 1
+                else
+                    [ "$1" == "`echo -e "$1\n$2" | sort -V | head -n1`" ]
+                fi
+              }
+            
+              if versioncheck $old_chart_version $new_chart_version; then
+                  echo "Helm chart version updated."
+              else
+                  echo "Helm chart version needs to be updated!"
+                  exit 1
+              fi
+
+          - name: Helm Template Check
+            run: |
+              helm template ${{matrix.chartpath}}
 
           - name: Build Helm Chart
             id: build-chart
