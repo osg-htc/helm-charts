@@ -154,10 +154,12 @@ Persistence:
   LibCondorCeVolume: null
 
 # Options to allow override of the bosco directory from arbitrary git repos
-# Bosco override dirs are expected in the following location in the git repo:
+# Bosco override dir lets you set what directory you want to put your bosco
+# overrides in. That field will default to the following location in the git repo:
 #   <RESOURCE NAME>/bosco_override/
 BoscoOverrides:
   Enabled: false
+  BoscoOverrideDir: null
   GitEndpoint: https://github.com/slateci/bosco-override-template
   # If GitEndpoint requires authentication, create a SLATE secret with
   # 'git.key' containing the private SSH key that can access
