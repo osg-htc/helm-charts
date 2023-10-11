@@ -30,12 +30,6 @@ spec:
     targetPort: http
     protocol: TCP
   {{ end }}
-  {{ if .Values.HTTPLogger.Enabled }}
-  - port: 8080
-    targetPort: logs
-    protocol: TCP
-    name: logs
-  {{ end }}
   {{ if .Values.Networking.RequestIP }}
   loadBalancerIP: {{ .Values.Networking.RequestIP }}
   {{ end }}

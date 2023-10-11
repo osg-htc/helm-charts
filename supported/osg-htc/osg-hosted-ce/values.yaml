@@ -169,13 +169,6 @@ BoscoOverrides:
   # instead of the default determined by the Hosted CE
   TarballURL: null
 
-# Enable a logging sidecar
-HTTPLogger:
-  Enabled: true
-  # If you want to insert a password instead of using a randomly generated one,
-  # point Secret to a K8S/SLATE secret below.
-  # Secret: my-secret
-
 # If a specific node is desired for scheduling
 # set this to the hostname of the desired node
 NodeSelection:
