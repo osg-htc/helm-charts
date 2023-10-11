@@ -117,54 +117,11 @@ spec:
       - name: log-volume
         persistentVolumeClaim:
           claimName: {{ .Values.Persistence.LogVolume }}
-      {{ else }}
-      {{ if .Values.HTTPLogger.Enabled }}
-      - name: log-volume
-        emptyDir: {}
-      {{ end }}
-      {{ end }}
-      {{ if .Values.HTTPLogger.Enabled }}
-      - name: osg-hosted-ce-{{ .Values.Instance }}-logger-startup
-        configMap:
-          name: osg-hosted-ce-{{ .Values.Instance }}-logger-startup
-      initContainers:
-      - name: logging-sidecar-init
-        image: "hub.opensciencegrid.org/opensciencegrid/hosted-ce:{{ .Values.ContainerTags.HostedCE }}"
-        imagePullPolicy: Always
-        command: ['/bin/chown','condor:condor','/var/log/condor-ce']
-        volumeMounts:
-        - name: log-volume
-          mountPath: /var/log/condor-ce
       {{ end }}
       {{ if eq .Values.Networking.ServiceType "HostNetwork" }}
       hostNetwork: true
       {{ end }}
       containers:
-      {{ if .Values.HTTPLogger.Enabled }}
-      - name: logging-sidecar
-        volumeMounts:
-        - name: log-volume
-          mountPath: /usr/share/nginx/html
-        - name: osg-hosted-ce-{{ .Values.Instance }}-logger-startup
-          mountPath: /usr/local/bin/start-nginx.sh
-          subPath: start-nginx.sh
-        ports: 
-        - name: logs
-          containerPort: 8080
-          protocol: TCP
-        image: "nginx:1.15.9"
-        command: ["/bin/bash"]
-        args: ["/usr/local/bin/start-nginx.sh"]
-        imagePullPolicy: IfNotPresent
-        {{ if .Values.HTTPLogger.Secret }}
-        env:
-          - name: HTPASSWD
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.HTTPLogger.Secret }}
-                key: HTPASSWD
-        {{ end }}
-      {{ end }}
       - name: osg-hosted-ce
         image: hub.opensciencegrid.org/opensciencegrid/hosted-ce:{{ .Values.ContainerTags.HostedCE }}
         imagePullPolicy: Always
@@ -207,7 +164,7 @@ spec:
           subPath: hostkey.pem
         {{ end }}
         {{ end }}
-        {{ if or .Values.Persistence.LogVolume .Values.HTTPLogger.Enabled }}
+        {{ if .Values.Persistence.LogVolume}}
         - name: log-volume
           mountPath: /var/log/condor-ce
         {{ end }}

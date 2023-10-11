@@ -228,32 +228,6 @@ You can use a private git repo and provide the key to the application as a SLATE
       GitEndpoint: "<GIT ENDPOINT>"
       GitKeySecret: null
 
-
-### HTTPLogger Section
-
-This allows you to turn toggle HTTP logging side car. When it is enabled, it will allow you to view the CE logs from your browser. 
-
-You may provide a SLATE secret with an `HTPASSWD` key containing password instead of having the container randomly
-generate a password. If you do, the username would be `logger`.
-
-**TIP** You can create a SLATE secret containing a predefined password for the logger using commands like:
-
-```
-openssl passwd -apr1 > HTPASSWD
-slate secret create <name-of-your-secret> --group <your-group> --cluster <your-cluster> --from-file=HTPASSWD
-```
-
-To disable this, comment out the `Secret` line (default).
-
-	HTTPLogger:
-	  Enabled: true
-      Secret: <PATH TO PASSWORD SECRET>
-
-You can get the endpoint for your logger by running `slate instance info <INSTANCE ID>`, and the randomly generated credentials will be written to the sidecar's logs.
-
-`slate instance logs <INSTANCE ID>`
-
-
 ### Certificate 
 
 Each time the CE is deployed, it requests a new certificate from Let's Encrypt, which has rate limits to prevent denial-of-service attacks. This means that if you are redeploying a CE frequently for troubleshooting purposes, you may experience the rate limit.
@@ -353,10 +327,6 @@ BoscoOverrides:
   Enabled: true
   GitEndpoint: "https://github.com/slateci/bosco-override-template.git"
   GitKeySecret: null
-
-HTTPLogger:
-  Enabled: true
-  Secret: null
 
 HostCredentials:
   HostKeySecret: null
