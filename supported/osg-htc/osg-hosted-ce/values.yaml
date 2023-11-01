@@ -160,7 +160,8 @@ Persistence:
 BoscoOverrides:
   Enabled: false
   BoscoOverrideDir: null
-  GitEndpoint: https://github.com/slateci/bosco-override-template
+  GitEndpoint: git@github.com:opensciencegrid/hosted-ce-config.git
+  RepoNeedsPrivKey: true
   # If GitEndpoint requires authentication, create a SLATE secret with
   # 'git.key' containing the private SSH key that can access
   # it. Specify the name of the secret in GitKeySecret:
