@@ -56,7 +56,7 @@ spec:
             type: Directory
           {{- else if .cephfs }}
           cephfs:
-            monitors: {{ .cephfs.monitors }}
+            monitors: {{ toJson .cephfs.monitors }}
             user: {{ .cephfs.user }}
             secretRef:
               name: {{ .cephfs.secretRef.name }}
