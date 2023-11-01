@@ -184,13 +184,6 @@ spec:
         - name: htcondor-ce
           containerPort: 9619
           protocol: TCP
-        {{ if or .Values.Dashboard.Enabled
-                 ( and (not .Values.HostCredentials.HostCertKeySecret)
-                       (not .Values.HostCredentials.HostCertSecret) ) }}
-        - name: http # needed to get a cert issued from Let's Encrypt
-          containerPort: 80
-          protocol: TCP
-        {{ end }}
         env:
         {{ if eq .Values.Networking.ServiceType "HostNetwork" }}
         - name: _CONDOR_NETWORK_HOSTNAME
@@ -215,10 +208,6 @@ spec:
           {{ else }}
           value: "false"
           {{ end }}
-        {{ if .Values.Dashboard.Enabled }}
-        - name: ENABLE_CE_VIEW
-          value: "true"
-        {{ end }}
         {{ if .Values.Debug.ContinueOnError }}
         - name: HOSTED_CE_CONTINUE_ON_ERROR
           value: "true"
