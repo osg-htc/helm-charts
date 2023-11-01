@@ -189,20 +189,8 @@ ServiceAnnotations: {}
 
 HostCredentials:
   # Name of the secret containing a host key and certificate in
-  # "tls.key" and "tls.crt", respectively. If defined, values of
-  # HostCertSecret and HostKeySecret are ignored.
+  # "tls.key" and "tls.crt", respectively. 
   HostCertKeySecret: null
-  # Use a pre-existing host key to request a new Let's Encrypt
-  # certificate If HostCertSecret is also specified, the Let's Encrypt
-  # request is skipped.  Secret must contain a "host.key" key
-  # containing the encoded host key.
-  HostKeySecret: null
-  # Use a pre-existing host certificate instead of requesting a new
-  # Let'S Encrypt certificate. If HostKeySecret is not specified, a
-  # new Let's Encrypt certificate and key are requested anyway.
-  # Secret must contain a "host.cert" containing the encoded host
-  # certificate.
-  HostCertSecret: null
   # If set to 'true', use the Let's Encrypt staging server. This is
   # useful for avoiding Let's Encrypt rate limits when first setting
   # up a CE. NOT SUITABLE FOR PRODUCTION USE.

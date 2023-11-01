@@ -82,25 +82,6 @@ spec:
           - key: tls.key
             path: hostkey.pem
             mode: 0o400
-      {{ else }}
-      {{ if and .Values.HostCredentials.HostCertSecret .Values.HostCredentials.HostKeySecret }}
-      - name: osg-hosted-ce-hostcert-volume
-        secret:
-          secretName: {{ .Values.HostCredentials.HostCertSecret }}
-          items:
-            - key: host.cert
-              path: hostcert.pem
-              mode: 256
-      {{ end }}
-      {{ if .Values.HostCredentials.HostKeySecret }}
-      - name: osg-hosted-ce-hostkey-volume
-        secret:
-          secretName: {{ .Values.HostCredentials.HostKeySecret }}
-          items:
-            - key: host.key
-              path: hostkey.pem
-              mode: 256
-      {{ end }}
       {{ end }}
       {{ if .Values.BoscoOverrides.Enabled }}
       {{ if .Values.BoscoOverrides.GitKeySecret }}
@@ -152,17 +133,6 @@ spec:
         {{ if .Values.HostCredentials.HostCertKeySecret }}
         - name: osg-hosted-ce-hostcertkey-volume
           mountPath: /etc/grid-security-orig.d
-        {{ else }}
-        {{ if and .Values.HostCredentials.HostCertSecret .Values.HostCredentials.HostKeySecret }}
-        - name: osg-hosted-ce-hostcert-volume
-          mountPath: /etc/grid-security/hostcert.pem
-          subPath: hostcert.pem
-        {{ end }}
-        {{ if .Values.HostCredentials.HostKeySecret }}
-        - name: osg-hosted-ce-hostkey-volume
-          mountPath: /etc/grid-security/hostkey.pem
-          subPath: hostkey.pem
-        {{ end }}
         {{ end }}
         {{ if .Values.Persistence.LogVolume}}
         - name: log-volume
