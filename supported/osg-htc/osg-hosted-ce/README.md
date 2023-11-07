@@ -242,12 +242,6 @@ To avoid these rate limits, it's possible to bootstrap the certificate request p
 
         slate secret create <YOUR HOST KEY SECRET NAME> --cluster <YOUR CLUSTER> --group <YOUR GROUP> --from-file host.key=<PATH TO KEYFILE>
 
-1.  Update your values file to use the host key secret that you've created:
-
-        HostCredentials:
-          HostKeySecret: <YOUR HOST KEY SECRET NAME>
-          HostCertSecret: null
-
 1.  Upon successful startup of the Hosted CE app, the Let's Encrypt host certificate can be found in the instance logs:
 
         slate instance logs <YOUR INSTANCE NAME> --container osg-hosted-ce --max-lines 0
@@ -257,12 +251,6 @@ To avoid these rate limits, it's possible to bootstrap the certificate request p
 1.  Store the host certificate in a SLATE secret:
 
         slate secret create <YOUR HOST CERT SECRET NAME> --cluster <YOUR CLUSTER> --group <YOUR GROUP> --from-file host.cert=<PATH TO CERT FILE>
-
-1.  Update your values file to use the host key secret that you've created:
-
-        HostCredentials:
-          HostKeySecret: <YOUR HOST KEY SECRET NAME>
-          HostCertSecret: <YOUR HOST CERT SECRET NAME>
 
 ### Developer 
 Simply disable this. It is in place for the purpose of OSG Internal Testbed hosts, and is not intended for use with production CEs.
@@ -329,8 +317,7 @@ BoscoOverrides:
   GitKeySecret: null
 
 HostCredentials:
-  HostKeySecret: null
-  HostCertSecret: null
+  HostCertKeySecret: null
   
 Developer:
   Enabled: false
