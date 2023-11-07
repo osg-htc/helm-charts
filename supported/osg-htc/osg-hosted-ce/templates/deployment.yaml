@@ -6,7 +6,6 @@ metadata:
     app: {{ template "osg-hosted-ce.name" . }}
     release: {{ .Release.Name }}
     instance: {{ .Values.Instance }}
-    instanceID: {{ .Values.SLATE.Instance.ID | quote  }}
     app.kubernetes.io/part-of: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
@@ -47,9 +46,9 @@ spec:
       - name: osg-hosted-ce-{{ .Values.Instance }}-htcondor-ce-configuration
         configMap:
           name: osg-hosted-ce-{{ .Values.Instance }}-htcondor-ce-configuration
-      - name: osg-hosted-ce-{{ .Values.Instance }}-slate-scitokens
+      - name: osg-hosted-ce-{{ .Values.Instance }}-scitokens
         configMap:
-          name: osg-hosted-ce-{{ .Values.Instance }}-slate-scitokens
+          name: osg-hosted-ce-{{ .Values.Instance }}-scitokens
       - name: bosco-ssh-private-key-volume
         secret: 
           secretName: {{ .Values.RemoteCluster.PrivateKeySecret }}
@@ -146,9 +145,9 @@ spec:
         {{ end }}
         {{ end }}
         {{ if .Values.SciTokenRemoteUserMapping }}
-        - name: osg-hosted-ce-{{ .Values.Instance }}-slate-scitokens
-          mountPath: /etc/condor-ce/mapfiles.d/50-slate-scitokens.conf
-          subPath: 50-slate-scitokens.conf
+        - name: osg-hosted-ce-{{ .Values.Instance }}-scitokens
+          mountPath: /etc/condor-ce/mapfiles.d/50-scitokens.conf
+          subPath: 50-scitokens.conf
         {{ end }}
         ports:
         - name: htcondor-ce
