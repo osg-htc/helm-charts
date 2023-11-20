@@ -60,6 +60,12 @@ spec:
             user: {{ .cephfs.user }}
             secretRef:
               name: {{ .cephfs.secretRef.name }}
+            {{- if .cephfs.path }}
+            path: {{ .cephfs.path }}
+            {{- end }}
+            {{- if .cephfs.readOnly }}
+            readOnly: {{ .cephfs.readOnly }}
+            {{- end }}
           {{- else }}
             {{- fail "Specify claimName, hostPath, or cephfs" -}}
           {{- end }}
