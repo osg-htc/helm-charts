@@ -20,6 +20,12 @@ spec:
           # stash-origin-auth
         - protocol: TCP
           port: 1095
+        {{- if .Values.monitoringShoveler.enabled }}
+        - protocol: UDP
+          port: 9993
+        - protocol: TCP
+          port: 9667
+        {{- end}}
   # egress is needed for downloading CRLs, contacting the OSG Central
   # Collector, reporting to the OSG redirctor
   egress:

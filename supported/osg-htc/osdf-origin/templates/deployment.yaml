@@ -120,6 +120,12 @@ spec:
         - name: sssd-sockets
           emptyDir: {}
         {{ end }}
+
+        {{- if .Values.monitoringShoveler.enabled }}
+        - name: shoveler-secrets
+          secret:
+            secretName: {{ .Values.monitoringShoveler.accessTokenSecret }}
+        {{ end }}
       # end volumes
 
       containers:
@@ -146,6 +152,10 @@ spec:
             {{- if and .Values.authOrigin.enabled .Values.authOrigin.exports }}
             - name: XC_AUTH_ORIGIN_EXPORT
               value: "{{ first .Values.authOrigin.exports }}"
+            {{- end }}
+            {{- if .Values.monitoringShoveler.enabled }}
+            - name: XC_SHOVELER
+              value: "{{ .Values.topologyFQDN }}:9993"
             {{- end }}
             {{- if .Values.extraEnv }}
               {{- toYaml .Values.extraEnv | nindent 12 }}
@@ -261,6 +271,44 @@ spec:
               subPath: sssd.conf
             - name: sssd-sockets
               mountPath: /var/lib/sss/pipes
+        {{ end }}
+
+        {{- if .Values.monitoringShoveler.enabled }}
+        - name: xrootd-stash-shoveler
+          image: hub.opensciencegrid.org/opensciencegrid/xrootd-monitoring-shoveler:latest
+          env:
+            - name: SHOVELER_AMQP_TOKEN_LOCATION
+              value: /secrets/token
+            - name: SHOVELER_AMQP_URL
+              value: {{ .Values.monitoringShoveler.amqpUrl }}
+            - name: SHOVELER_AMQP_EXCHANGE
+              value: {{ .Values.monitoringShoveler.amqpUrl }}
+            - name: SHOVELER_LISTEN_PORT
+              value: 9993
+            - name: SHOVELER_METRICS_PORT
+              value: 9667
+            - name: SHOVELER_LISTEN_IP
+              value: 0.0.0.0
+            {{- if .Values.monitoringShoveler.extraEnv }}
+              {{- toYaml .Values.monitoringShoveler.extraEnv | nindent 12 }}
+            {{- end }}
+              
+          resources:
+            limits:
+              memory: "2Gi"
+              cpu: "500m"
+          imagePullPolicy: Always
+          ports:
+            - name: shoveler
+              containerPort: 9993
+              protocol: UDP
+            - name: stats
+              containerPort: 9667
+              protocol: TCP
+          volumeMounts:
+            - name: shoveler-secrets
+              mountPath: /secrets
+              readOnly: true
         {{ end }}
       # end containers
     # end spec

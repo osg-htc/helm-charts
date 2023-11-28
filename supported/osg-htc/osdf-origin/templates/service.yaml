@@ -36,6 +36,16 @@ spec:
       protocol: TCP
       name: xrootd-stash-origin-auth
     {{- end }}
+    {{- if .Values.monitoringShoveler.enabled }}
+    - name: shoveler
+      protocol: UDP
+      port: 9993
+      targetPort: shoveler
+    - name: stats
+      protocol: TCP
+      port: 9667
+      targetPort: stats
+    {{- end }}
   selector:
     app: {{ template "osdf-origin.name" . }}
     release: {{ .Release.Name }}
