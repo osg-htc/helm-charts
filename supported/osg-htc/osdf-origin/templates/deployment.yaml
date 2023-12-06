@@ -282,13 +282,13 @@ spec:
             - name: SHOVELER_AMQP_URL
               value: {{ .Values.monitoringShoveler.amqpUrl }}
             - name: SHOVELER_AMQP_EXCHANGE
-              value: {{ .Values.monitoringShoveler.amqpUrl }}
+              value: {{ .Values.monitoringShoveler.amqpExchange }}
             - name: SHOVELER_LISTEN_PORT
-              value: 9993
+              value: "9993"
             - name: SHOVELER_METRICS_PORT
-              value: 9667
+              value: "9667"
             - name: SHOVELER_LISTEN_IP
-              value: 0.0.0.0
+              value: "0.0.0.0"
             {{- if .Values.monitoringShoveler.extraEnv }}
               {{- toYaml .Values.monitoringShoveler.extraEnv | nindent 12 }}
             {{- end }}
