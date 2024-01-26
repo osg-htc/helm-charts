@@ -130,6 +130,34 @@ data:
     JOB_ROUTER_ENTRIES = [Name = "Hosted_CE_default_route"]
 
     JOB_ROUTER_ROUTE_NAMES = Hosted_CE_default_route
+
+    # New Job Router transforms for token and GridResource construction
+    JOB_ROUTER_TRANSFORM_Token @=jrt
+        SET TransferInput "$(MY.TransferInput),/usr/share/condor-ce/glidein-tokens/$(MY.Owner)/ce_$(MY.Owner).idtoken"
+    @jrt
+    JOB_ROUTER_POST_ROUTE_TRANSFORM_NAMES = $(JOB_ROUTER_POST_ROUTE_TRANSFORM_NAMES) Token
+
+    JOB_ROUTER_TRANSFORM_GridResource @=jrt
+        grid_resource = batch {{ .Values.RemoteCluster.Batch }} $(MY.Owner)@{{ .Values.RemoteCluster.LoginHost }}
+        grid_resource = $(grid_resource) --rgahp-glite ~/{{ .Values.RemoteCluster.BoscoDir | default "~/bosco"}}/glite
+        {{ if .Values.BoscoOverrides.TarballURL | default "" | contains "bosco-1.3"  }}
+        grid_resource = $(grid_resource) --rgahp-script batch_gahp
+        {{ end }}
+        {{ if not .Values.RemoteCluster.SSHBatchMode }}
+        grid_resource = $(grid_resource) --rgahp-nobatchmode
+        {{ end }}
+        {{ if not .Values.RemoteCluster.LoginShell }}
+        grid_resource = $(grid_resource) --rgahp-nologin
+        {{ end }}
+    @jrt
+    JOB_ROUTER_PRE_ROUTE_TRANSFORM_NAMES = $(JOB_ROUTER_PRE_ROUTE_TRANSFORM_NAMES) GridResource
+
+    # To use the new Job Router syntax, uncomment these lines:
+    #JOB_ROUTER_USE_DEPRECATED_ROUTER_ENTRIES = False
+    #JOB_ROUTER_ROUTE_Hosted_CE_default_route @=jrt
+    #    GridResource = "$(grid_resource)"
+    #@jrt
+
     # Operator-provided HTCondor-CE configuration below this line
 {{ .Values.HTCondorCeConfig | default "" | indent 4 }}
 ---
