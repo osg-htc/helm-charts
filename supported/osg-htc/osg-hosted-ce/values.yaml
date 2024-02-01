@@ -226,6 +226,9 @@ Debug:
 Developer:
   Enabled: false
 
+# Should the Job Router use the new route syntax?
+JobRouterUseTransforms: false
+
 ### SLATE-START ###
 SLATE:
   Instance:
