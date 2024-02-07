@@ -152,6 +152,17 @@ data:
     @jrt
     JOB_ROUTER_PRE_ROUTE_TRANSFORM_NAMES = $(JOB_ROUTER_PRE_ROUTE_TRANSFORM_NAMES) GridResource
 
+    # Fix bug in CERequirements pre transform in base CE config
+    # Bug is fixed in 23.0.X (HTCONDOR-2276)
+    JOB_ROUTER_TRANSFORM_CERequirements @=jrt
+        SET CondorCE 1
+        if defined MY.default_CERequirements
+            SET CERequirements "$(MY.default_CERequirements),CondorCE"
+        else
+            SET CERequirements "CondorCE"
+        endif
+    @jrt
+
     {{ if .Values.JobRouterUseTransforms }}
     JOB_ROUTER_USE_DEPRECATED_ROUTER_ENTRIES = False
     JOB_ROUTER_ROUTE_Hosted_CE_default_route @=jrt
