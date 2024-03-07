@@ -138,10 +138,14 @@ data:
     JOB_ROUTER_POST_ROUTE_TRANSFORM_NAMES = $(JOB_ROUTER_POST_ROUTE_TRANSFORM_NAMES) Token
 
     JOB_ROUTER_TRANSFORM_GridResource @=jrt
-        gr = batch {{ .Values.RemoteCluster.Batch }} $(MY.Owner)@{{ .Values.RemoteCluster.LoginHost }} --rgahp-glite ~/{{ .Values.RemoteCluster.BoscoDir | default "~/bosco"}}/glite
+        hosted_grid_resource = batch {{ .Values.RemoteCluster.Batch }} $(MY.Owner)@{{ .Values.RemoteCluster.LoginHost }} --rgahp-glite ~/{{ .Values.RemoteCluster.BoscoDir | default "~/bosco"}}/glite
         {{- if .Values.BoscoOverrides.TarballURL | default "" | contains "bosco-1.3" }} --rgahp-script batch_gahp{{ end }}
         {{- if not .Values.RemoteCluster.SSHBatchMode }} --rgahp-nobatchmode{{ end }}
         {{- if not .Values.RemoteCluster.LoginShell }} --rgahp-nologin{{ end }}
+        SET GridResource "$(hosted_grid_resource)"
+        # This is the old name for hosted_grid_resource.
+        # We can remove this once all CEs are updated to not use it.
+        gr = $(hosted_grid_resource)
     @jrt
     JOB_ROUTER_PRE_ROUTE_TRANSFORM_NAMES = $(JOB_ROUTER_PRE_ROUTE_TRANSFORM_NAMES) GridResource
 
@@ -160,7 +164,6 @@ data:
     JOB_ROUTER_USE_DEPRECATED_ROUTER_ENTRIES = False
     JOB_ROUTER_ROUTE_Hosted_CE_default_route @=jrt
         GridResource = "dummy"
-        SET GridResource "$(gr)"
     @jrt
     {{ else }}
     JOB_ROUTER_USE_DEPRECATED_ROUTER_ENTRIES = True
