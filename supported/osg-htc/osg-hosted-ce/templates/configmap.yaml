@@ -138,17 +138,10 @@ data:
     JOB_ROUTER_POST_ROUTE_TRANSFORM_NAMES = $(JOB_ROUTER_POST_ROUTE_TRANSFORM_NAMES) Token
 
     JOB_ROUTER_TRANSFORM_GridResource @=jrt
-        gr = batch {{ .Values.RemoteCluster.Batch }} $(MY.Owner)@{{ .Values.RemoteCluster.LoginHost }}
-        gr = $(gr) --rgahp-glite ~/{{ .Values.RemoteCluster.BoscoDir | default "~/bosco"}}/glite
-        {{ if .Values.BoscoOverrides.TarballURL | default "" | contains "bosco-1.3"  }}
-        gr = $(gr) --rgahp-script batch_gahp
-        {{ end }}
-        {{ if not .Values.RemoteCluster.SSHBatchMode }}
-        gr = $(gr) --rgahp-nobatchmode
-        {{ end }}
-        {{ if not .Values.RemoteCluster.LoginShell }}
-        gr = $(gr) --rgahp-nologin
-        {{ end }}
+        gr = batch {{ .Values.RemoteCluster.Batch }} $(MY.Owner)@{{ .Values.RemoteCluster.LoginHost }} --rgahp-glite ~/{{ .Values.RemoteCluster.BoscoDir | default "~/bosco"}}/glite
+        {{- if .Values.BoscoOverrides.TarballURL | default "" | contains "bosco-1.3" }} --rgahp-script batch_gahp{{ end }}
+        {{- if not .Values.RemoteCluster.SSHBatchMode }} --rgahp-nobatchmode{{ end }}
+        {{- if not .Values.RemoteCluster.LoginShell }} --rgahp-nologin{{ end }}
     @jrt
     JOB_ROUTER_PRE_ROUTE_TRANSFORM_NAMES = $(JOB_ROUTER_PRE_ROUTE_TRANSFORM_NAMES) GridResource
 
