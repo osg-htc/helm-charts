@@ -19,6 +19,7 @@ RemoteCluster:
   # Jump host formatted as host[:port]
   # If set, KnownHosts below must also be set.
   ProxyJump: null
+  ProxyJumpUser: null
   # Contents of SSH known_hosts
   # Required for sites with ProyJump defined
   KnownHosts: null
