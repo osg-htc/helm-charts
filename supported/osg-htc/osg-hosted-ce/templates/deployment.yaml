@@ -27,6 +27,7 @@ spec:
         app.kubernetes.io/part-of: {{ .Chart.Name }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      enableServiceLinks: false
       {{ if .Values.NodeSelection.Enabled }}
       nodeSelector: 
         {{ if .Values.NodeSelection.NodeLabels}}
