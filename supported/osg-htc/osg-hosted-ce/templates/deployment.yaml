@@ -37,7 +37,7 @@ spec:
         {{ end }}
       {{ end }}
       volumes:
-      {{ if .Values.Persistence.LibCondorCeVolume }}
+      {{ if .Values.Persistence.IdtokenKeyVolume }}
       - name: idtoken-key-condor-ce
         persistentVolumeClaim:
           claimName: {{ .Values.Persistence.IdtokenKeyVolume }}
