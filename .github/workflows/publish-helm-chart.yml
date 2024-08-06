@@ -83,9 +83,10 @@ jobs:
             if: ${{ hashFiles(format('{0}/{1}', matrix.chartpath, 'build-config.json')) != '' }}
             run: |
               UPSTREAM=$(jq -r '.upstream' ${{matrix.chartpath}}/build-config.json)
-              TAG=$(jq -r '.tag' ${{matrix.chartpath}}/build-config.json)
+              REF=$(jq -r '.ref' ${{matrix.chartpath}}/build-config.json)
               CHART_DIR=$(jq -r '.chart_dir' ${{matrix.chartpath}}/build-config.json)
-              git clone --branch $TAG --depth 1 $UPSTREAM ${{matrix.chartpath}}/upstream
+              git clone $UPSTREAM ${{matrix.chartpath}}/upstream
+              (cd ${{matrix.chartpath}}/upstream; git fetch && git reset --hard $REF)
               # Re-organize the directory so that Chart.yaml sits at the top level of ${{matrix.chartpath}}
               # to align directory structure with remaining GHA steps
               mv ${{matrix.chartpath}}/upstream/$CHART_DIR/* ${{matrix.chartpath}}
