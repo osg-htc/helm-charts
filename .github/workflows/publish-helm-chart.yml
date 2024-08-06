@@ -80,7 +80,7 @@ jobs:
           - name: Upstream Repo Sync
             # if build-config.json in this chartpath specifies an external git repo,
             # clone that repo and move its contents to chartpath
-            if: ${{ hashFiles(format('{0}/{1}',matrix.chartpath, 'build-config.json')) != '' }}
+            if: ${{ hashFiles(format('{0}/{1}', matrix.chartpath, 'build-config.json')) != '' }}
             run: |
               UPSTREAM=$(jq -r '.upstream' ${{matrix.chartpath}}/build-config.json)
               TAG=$(jq -r '.tag' ${{matrix.chartpath}}/build-config.json)
@@ -114,6 +114,9 @@ jobs:
               fi 
 
           - name: Helm Chart Version Check
+            # if build-config.json in this chartpath specifies an external git repo,
+            # assume that an explicit upgrade was detected and don't compare semvers
+            if: ${{ hashFiles(format('{0}/{1}', matrix.chartpath, 'build-config.json')) == '' }}
             env: 
               BASE: ${{needs.build-chart-list.outputs.BASE}}
             run: |
