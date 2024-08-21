@@ -1,5 +1,5 @@
 {
     "upstream":"https://github.com/rptaylor/kapel.git",
-    "ref": "8e58b78fbecdad922b32c90dcafe21ef82e6b051",
+    "ref": "v1.0.0-rc1",
     "chart_dir": "chart"
 }
