@@ -26,6 +26,7 @@ spec:
         app.kubernetes.io/part-of: {{ .Chart.Name }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      enableServiceLinks: false
       {{ if .Values.NodeSelection.Enabled }}
       nodeSelector: 
         {{ if .Values.NodeSelection.NodeLabels}}
@@ -35,6 +36,11 @@ spec:
         {{ end }}
       {{ end }}
       volumes:
+      {{ if .Values.Persistence.IdtokenKeyVolume }}
+      - name: idtoken-key-condor-ce
+        persistentVolumeClaim:
+          claimName: {{ .Values.Persistence.IdtokenKeyVolume }}
+      {{ end }}
       {{ if .Values.Persistence.LibCondorCeVolume }}
       - name: lib-condor-ce
         persistentVolumeClaim:
@@ -125,6 +131,10 @@ spec:
         - name: osg-hosted-ce-{{ .Values.Instance }}-htcondor-ce-configuration
           mountPath: /etc/condor-ce/config.d/90-instance.conf
           subPath: 90-instance.conf
+        {{ if .Values.Persistence.IdtokenKeyVolume }}
+        - name: idtoken-key-condor-ce
+          mountPath: /etc/condor-ce/passwords.d/
+        {{ end }}
         {{ if .Values.Persistence.LibCondorCeVolume }}
         - name: lib-condor-ce
           mountPath: /var/lib/condor-ce

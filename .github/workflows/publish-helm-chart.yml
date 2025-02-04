@@ -77,6 +77,21 @@ jobs:
               version: 'v3.12.0'
             id: install
 
+          - name: Upstream Repo Sync
+            # if build-config.json in this chartpath specifies an external git repo,
+            # clone that repo and move its contents to chartpath
+            if: ${{ hashFiles(format('{0}/{1}', matrix.chartpath, 'build-config.json')) != '' }}
+            run: |
+              UPSTREAM=$(jq -r '.upstream' ${{matrix.chartpath}}/build-config.json)
+              REF=$(jq -r '.ref' ${{matrix.chartpath}}/build-config.json)
+              CHART_DIR=$(jq -r '.chart_dir' ${{matrix.chartpath}}/build-config.json)
+              git clone $UPSTREAM ${{matrix.chartpath}}/upstream
+              (cd ${{matrix.chartpath}}/upstream; git fetch && git reset --hard $REF)
+              # Re-organize the directory so that Chart.yaml sits at the top level of ${{matrix.chartpath}}
+              # to align directory structure with remaining GHA steps
+              mv ${{matrix.chartpath}}/upstream/$CHART_DIR/* ${{matrix.chartpath}}
+              
+
           - name: Helm Chart Linter
             run: |
               helm lint ${{matrix.chartpath}}
@@ -100,6 +115,9 @@ jobs:
               fi 
 
           - name: Helm Chart Version Check
+            # if build-config.json in this chartpath specifies an external git repo,
+            # assume that an explicit upgrade was detected and don't compare semvers
+            if: ${{ hashFiles(format('{0}/{1}', matrix.chartpath, 'build-config.json')) == '' }}
             env: 
               BASE: ${{needs.build-chart-list.outputs.BASE}}
             run: |

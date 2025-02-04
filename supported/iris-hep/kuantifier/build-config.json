@@ -1,0 +1,5 @@
+{
+    "upstream":"https://github.com/rptaylor/kapel.git",
+    "ref": "v1.0.0",
+    "chart_dir": "chart"
+}

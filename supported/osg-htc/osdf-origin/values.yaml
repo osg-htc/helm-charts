@@ -151,6 +151,21 @@ service:
 ## Enable hostNetwork mode
 hostNetwork: false
 
+# Add a monitoring shoveler to the origin deployment
+monitoringShoveler:
+  enabled: false
+  # Secret containing an access token for the shoveler's AMQP exchange in the 'token' key
+  accessTokenSecret: null
+  # URL of the message broker that the shoveler reports to
+  amqpUrl: ""
+  # Exchange on the message broker that the shoveler reports to
+  amqpExchange: ""
+
+  # Extra environment variables for the shoveler
+  extraEnv:
+#   - name: ...
+#     value: "..."
+
 ### SLATE-START ###
 SLATE:
   Instance:

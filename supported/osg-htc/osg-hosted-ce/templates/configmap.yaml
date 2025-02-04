@@ -131,6 +131,44 @@ data:
     JOB_ROUTER_ENTRIES = [Name = "Hosted_CE_default_route"]
 
     JOB_ROUTER_ROUTE_NAMES = Hosted_CE_default_route
+
+    # New Job Router transforms for token and GridResource construction
+    JOB_ROUTER_TRANSFORM_Token @=jrt
+        SET TransferInput "$(MY.TransferInput),/usr/share/condor-ce/glidein-tokens/$(MY.Owner)/ce_$(MY.Owner).idtoken"
+    @jrt
+    JOB_ROUTER_POST_ROUTE_TRANSFORM_NAMES = $(JOB_ROUTER_POST_ROUTE_TRANSFORM_NAMES) Token
+
+    JOB_ROUTER_TRANSFORM_GridResource @=jrt
+        hosted_grid_resource = batch {{ .Values.RemoteCluster.Batch }} $(MY.Owner)@{{ .Values.RemoteCluster.LoginHost }} --rgahp-glite ~/{{ .Values.RemoteCluster.BoscoDir | default "~/bosco"}}/glite
+        {{- if not .Values.RemoteCluster.SSHBatchMode }} --rgahp-nobatchmode{{ end }}
+        {{- if not .Values.RemoteCluster.LoginShell }} --rgahp-nologin{{ end }}
+        SET GridResource "$(hosted_grid_resource)"
+        # This is the old name for hosted_grid_resource.
+        # We can remove this once all CEs are updated to not use it.
+        gr = $(hosted_grid_resource)
+    @jrt
+    JOB_ROUTER_PRE_ROUTE_TRANSFORM_NAMES = $(JOB_ROUTER_PRE_ROUTE_TRANSFORM_NAMES) GridResource
+
+    # Fix bug in CERequirements pre transform in base CE config
+    # Bug is fixed in 23.0.X (HTCONDOR-2276)
+    JOB_ROUTER_TRANSFORM_CERequirements @=jrt
+        SET CondorCE 1
+        if defined MY.default_CERequirements
+            SET CERequirements "$(MY.default_CERequirements),CondorCE"
+        else
+            SET CERequirements "CondorCE"
+        endif
+    @jrt
+
+    {{ if .Values.JobRouterUseTransforms }}
+    JOB_ROUTER_USE_DEPRECATED_ROUTER_ENTRIES = False
+    JOB_ROUTER_ROUTE_Hosted_CE_default_route @=jrt
+        GridResource = "dummy"
+    @jrt
+    {{ else }}
+    JOB_ROUTER_USE_DEPRECATED_ROUTER_ENTRIES = True
+    {{ end }}
+
     # Operator-provided HTCondor-CE configuration below this line
 {{ .Values.HTCondorCeConfig | default "" | indent 4 }}
 ---
