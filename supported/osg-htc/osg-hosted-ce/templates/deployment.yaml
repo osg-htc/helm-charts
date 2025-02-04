@@ -6,7 +6,6 @@ metadata:
     app: {{ template "osg-hosted-ce.name" . }}
     release: {{ .Release.Name }}
     instance: {{ .Values.Instance }}
-    instanceID: {{ .Values.SLATE.Instance.ID | quote  }}
     app.kubernetes.io/part-of: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
@@ -53,9 +52,9 @@ spec:
       - name: osg-hosted-ce-{{ .Values.Instance }}-htcondor-ce-configuration
         configMap:
           name: osg-hosted-ce-{{ .Values.Instance }}-htcondor-ce-configuration
-      - name: osg-hosted-ce-{{ .Values.Instance }}-slate-scitokens
+      - name: osg-hosted-ce-{{ .Values.Instance }}-scitokens
         configMap:
-          name: osg-hosted-ce-{{ .Values.Instance }}-slate-scitokens
+          name: osg-hosted-ce-{{ .Values.Instance }}-scitokens
       - name: bosco-ssh-private-key-volume
         secret: 
           secretName: {{ .Values.RemoteCluster.PrivateKeySecret }}
@@ -88,25 +87,6 @@ spec:
           - key: tls.key
             path: hostkey.pem
             mode: 0o400
-      {{ else }}
-      {{ if and .Values.HostCredentials.HostCertSecret .Values.HostCredentials.HostKeySecret }}
-      - name: osg-hosted-ce-hostcert-volume
-        secret:
-          secretName: {{ .Values.HostCredentials.HostCertSecret }}
-          items:
-            - key: host.cert
-              path: hostcert.pem
-              mode: 256
-      {{ end }}
-      {{ if .Values.HostCredentials.HostKeySecret }}
-      - name: osg-hosted-ce-hostkey-volume
-        secret:
-          secretName: {{ .Values.HostCredentials.HostKeySecret }}
-          items:
-            - key: host.key
-              path: hostkey.pem
-              mode: 256
-      {{ end }}
       {{ end }}
       {{ if .Values.BoscoOverrides.Enabled }}
       {{ if .Values.BoscoOverrides.GitKeySecret }}
@@ -162,17 +142,6 @@ spec:
         {{ if .Values.HostCredentials.HostCertKeySecret }}
         - name: osg-hosted-ce-hostcertkey-volume
           mountPath: /etc/grid-security-orig.d
-        {{ else }}
-        {{ if and .Values.HostCredentials.HostCertSecret .Values.HostCredentials.HostKeySecret }}
-        - name: osg-hosted-ce-hostcert-volume
-          mountPath: /etc/grid-security/hostcert.pem
-          subPath: hostcert.pem
-        {{ end }}
-        {{ if .Values.HostCredentials.HostKeySecret }}
-        - name: osg-hosted-ce-hostkey-volume
-          mountPath: /etc/grid-security/hostkey.pem
-          subPath: hostkey.pem
-        {{ end }}
         {{ end }}
         {{ if .Values.Persistence.LogVolume}}
         - name: log-volume
@@ -186,21 +155,14 @@ spec:
         {{ end }}
         {{ end }}
         {{ if .Values.SciTokenRemoteUserMapping }}
-        - name: osg-hosted-ce-{{ .Values.Instance }}-slate-scitokens
-          mountPath: /etc/condor-ce/mapfiles.d/50-slate-scitokens.conf
-          subPath: 50-slate-scitokens.conf
+        - name: osg-hosted-ce-{{ .Values.Instance }}-scitokens
+          mountPath: /etc/condor-ce/mapfiles.d/50-scitokens.conf
+          subPath: 50-scitokens.conf
         {{ end }}
         ports:
         - name: htcondor-ce
           containerPort: 9619
           protocol: TCP
-        {{ if or .Values.Dashboard.Enabled
-                 ( and (not .Values.HostCredentials.HostCertKeySecret)
-                       (not .Values.HostCredentials.HostCertSecret) ) }}
-        - name: http # needed to get a cert issued from Let's Encrypt
-          containerPort: 80
-          protocol: TCP
-        {{ end }}
         env:
         {{ if eq .Values.Networking.ServiceType "HostNetwork" }}
         - name: _CONDOR_NETWORK_HOSTNAME
@@ -225,10 +187,6 @@ spec:
           {{ else }}
           value: "false"
           {{ end }}
-        {{ if .Values.Dashboard.Enabled }}
-        - name: ENABLE_CE_VIEW
-          value: "true"
-        {{ end }}
         {{ if .Values.Debug.ContinueOnError }}
         - name: HOSTED_CE_CONTINUE_ON_ERROR
           value: "true"

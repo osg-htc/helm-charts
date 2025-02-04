@@ -72,7 +72,8 @@ data:
 {{ end }}
 
     SLATE_HOSTED_CE = True
-    SCHEDD_ATTRS = $(SCHEDD_ATTRS) SLATE_HOSTED_CE
+    OSG_HOSTED_CE = True
+    SCHEDD_ATTRS = $(SCHEDD_ATTRS) SLATE_HOSTED_CE OSG_HOSTED_CE
 
     # Templatize IDTOKEN generation for glidein -> CE collector advertising (SOFTWARE-5556)
     {{- range $index, $map := .Values.SciTokenRemoteUserMapping }}
@@ -174,7 +175,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: osg-hosted-ce-{{ .Values.Instance }}-slate-scitokens
+  name: osg-hosted-ce-{{ .Values.Instance }}-scitokens
   labels:
     app: osg-hosted-ce
     instance: {{ .Values.Instance }}
@@ -182,7 +183,7 @@ metadata:
     app.kubernetes.io/part-of: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 data:
-  50-slate-scitokens.conf: |+
+  50-scitokens.conf: |+
     {{- range $index, $map := .Values.SciTokenRemoteUserMapping }}
     {{- range $url, $user := $map }}
     SCITOKENS /^{{ $url | replace "/" "\\/" | replace "." "\\." | replace "-" "\\-" }}{{ if not ( $url | contains "," ) }},{{ end }}/ {{ $user }}

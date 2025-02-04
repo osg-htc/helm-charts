@@ -28,7 +28,7 @@ RemoteCluster:
   #    login04.osgconnect.net ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCqsciY/FmcH6yedW7DxbTwLjkwlgVcbcG43QwdaSvMuN5EHAeLRH2P6ig3H6s/4hZqJn7AU2oNsoIqjZZ8iHqGyiTB9r70Aovt9PUuQXw5qHvYiIoyw49/waJ+yzu4+UD3qfnxeHuRw5EOaXia72MNJJ4lBMoS6iw1JveFJY4rBgKZ7nta1eAGGfHADsf5lfhlIXnJPN050X6zcUjqEEKXjdUkFa3wDiVbFEIESCMwi1b6Q1OXGGFwuSNse1X38CREBzQ+NjOB97o70chZoh2jZ2O3iZZZbujYcDzpxF3RxmewFC3pDmkoOpJrfV2W58n1KdJJnyvjlqEZGXCXcAlB
   #    login04.osgconnect.net ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBCnySArMSVd0O3UniYN4vX3a/d9d9mEMnrf2z1S900t0GrxVazVGu3ObeLfWwYRc3qFXNRPGh3mKcz5QVG6gcm4=
   #    login04.osgconnect.net ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJBW6weAaFSdLYksn4vIvqt4+geNVQ/bUvp71kTeQsKV
-  # SLATE secret with 'bosco.key' containing the SSH key to access LoginHost:
+  # Secret with 'bosco.key' containing the SSH key to access LoginHost:
   PrivateKeySecret: lincolnb-bosco
   # Secret containing a signed certificate (required by some sites)
   # See CertificateFile in `man ssh_config`
@@ -145,9 +145,7 @@ SciTokenRemoteUserMapping:
 #   max_wall_time = 34560
 #   queue = opportunistic
 
-# Enable persistence to HostedCE files by creating corresponding SLATE Volumes
-# SLATE Creates a PVC in Kubernetes which can be reclaimed on restart
-# The value for each volume should correspond to the volume name within SLATE
+# Enable persistence to HostedCE files by creating corresponding Volumes
 Persistence:
   # /var/log/condor-ce
   LogVolume: null 
@@ -163,8 +161,9 @@ Persistence:
 BoscoOverrides:
   Enabled: false
   BoscoOverrideDir: null
-  GitEndpoint: https://github.com/slateci/bosco-override-template
-  # If GitEndpoint requires authentication, create a SLATE secret with
+  GitEndpoint: git@github.com:opensciencegrid/hosted-ce-config.git
+  RepoNeedsPrivKey: true
+  # If GitEndpoint requires authentication, create a secret with
   # 'git.key' containing the private SSH key that can access
   # it. Specify the name of the secret in GitKeySecret:
   GitKeySecret: null
@@ -191,27 +190,12 @@ ServiceAnnotations: {}
 
 HostCredentials:
   # Name of the secret containing a host key and certificate in
-  # "tls.key" and "tls.crt", respectively. If defined, values of
-  # HostCertSecret and HostKeySecret are ignored.
+  # "tls.key" and "tls.crt", respectively. 
   HostCertKeySecret: null
-  # Use a pre-existing host key to request a new Let's Encrypt
-  # certificate If HostCertSecret is also specified, the Let's Encrypt
-  # request is skipped.  Secret must contain a "host.key" key
-  # containing the encoded host key.
-  HostKeySecret: null
-  # Use a pre-existing host certificate instead of requesting a new
-  # Let'S Encrypt certificate. If HostKeySecret is not specified, a
-  # new Let's Encrypt certificate and key are requested anyway.
-  # Secret must contain a "host.cert" containing the encoded host
-  # certificate.
-  HostCertSecret: null
   # If set to 'true', use the Let's Encrypt staging server. This is
   # useful for avoiding Let's Encrypt rate limits when first setting
   # up a CE. NOT SUITABLE FOR PRODUCTION USE.
   LetsEncryptStaging: false
-
-Dashboard:
-  Enabled: false
 
 # Choose which tag to use for the specified containers
 ContainerTags:
@@ -228,12 +212,3 @@ Debug:
 # - Generates a test CA and self-signed host cert/key pair
 Developer:
   Enabled: false
-
-# Should the Job Router use the new route syntax?
-JobRouterUseTransforms: false
-
-### SLATE-START ###
-SLATE:
-  Instance:
-    ID: "untagged"
-### SLATE-END ###
