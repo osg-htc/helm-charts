@@ -132,6 +132,13 @@ SciTokenRemoteUserMapping:
 # HTCondorCeConfig: |+
 #   ALL_DEBUG = D_ALWAYS:2 D_CAT
 
+# ExternalHTCondorCeConfig: 
+# - Name: k8s-ce-config
+#   Directory: /etc/condor-ce/k8s-ce-config.d
+# - Name: ConfigTest
+#   Directory: /etc/condor-ce/test
+#   File: test.yaml
+
 # Specify additional osg-configure configuration
 # See https://github.com/opensciencegrid/osg-configure#35-pilotini--pilot
 # OsgConfigureConfig: |+

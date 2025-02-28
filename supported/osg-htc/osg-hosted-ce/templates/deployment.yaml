@@ -46,6 +46,13 @@ spec:
         persistentVolumeClaim:
           claimName: {{ .Values.Persistence.LibCondorCeVolume }}
       {{ end }}
+      {{ if .Values.ExternalHTCondorCeConfig }}
+      {{- range .Values.ExternalHTCondorCeConfig }}
+      - name: {{ .Name }}
+        configMap:
+          name: {{ .Name }}
+      {{- end }}
+      {{ end }}
       - name: osg-hosted-ce-{{ .Values.Instance }}-configuration
         configMap:
           name: osg-hosted-ce-{{ .Values.Instance }}-configuration
@@ -115,6 +122,14 @@ spec:
         - name: osg-hosted-ce-{{ .Values.Instance }}-configuration
           mountPath: /tmp/90-local.ini
           subPath: 90-local.ini
+        {{ if .Values.ExternalHTCondorCeConfig }}
+        {{- range .Values.ExternalHTCondorCeConfig }}
+        - name: {{ .Name }}
+          mountPath: {{ .Directory }}{{ if .File }}/{{ .File }}
+          subPath: {{ .File }}
+          {{ end }}
+        {{- end}}
+        {{ end }}
         - name: bosco-ssh-private-key-volume
           mountPath: /etc/osg/bosco.key
           subPath: bosco.key
