@@ -163,14 +163,10 @@ data:
         endif
     @jrt
 
-    {{ if .Values.JobRouterUseTransforms }}
     JOB_ROUTER_USE_DEPRECATED_ROUTER_ENTRIES = False
     JOB_ROUTER_ROUTE_Hosted_CE_default_route @=jrt
         GridResource = "dummy"
     @jrt
-    {{ else }}
-    JOB_ROUTER_USE_DEPRECATED_ROUTER_ENTRIES = True
-    {{ end }}
 
     # Operator-provided HTCondor-CE configuration below this line
 {{ .Values.HTCondorCeConfig | default "" | indent 4 }}
