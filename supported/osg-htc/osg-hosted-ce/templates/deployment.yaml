@@ -116,7 +116,11 @@ spec:
       {{ end }}
       containers:
       - name: osg-hosted-ce
+        {{ if .Values.ContainerTags.HostedCE | default "" | contains "23-" }}
         image: hub.opensciencegrid.org/opensciencegrid/hosted-ce:{{ .Values.ContainerTags.HostedCE }}
+        {{ else }}
+        image: hub.opensciencegrid.org/osg-htc/hosted-ce:{{ .Values.ContainerTags.HostedCE }}
+        {{ end }}
         imagePullPolicy: Always
         volumeMounts:
         - name: osg-hosted-ce-{{ .Values.Instance }}-configuration
