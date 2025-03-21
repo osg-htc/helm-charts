@@ -133,10 +133,10 @@ SciTokenRemoteUserMapping:
 #   ALL_DEBUG = D_ALWAYS:2 D_CAT
 
 # ExternalHTCondorCeConfig: 
-# - Name: k8s-ce-config
-#   Directory: /etc/condor-ce/k8s-ce-config.d
+# - Name: k8s-hosted-ce-config
+#   File: 91-factory-whitelist.ini
 # - Name: ConfigTest
-#   Directory: /etc/condor-ce/test
+#   Directory: /etc/condor-ce/test-config.d
 #   File: test.yaml
 
 # Specify additional osg-configure configuration
