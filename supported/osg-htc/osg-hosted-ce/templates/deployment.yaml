@@ -129,9 +129,8 @@ spec:
         {{ if .Values.ExternalHTCondorCeConfig }}
         {{- range .Values.ExternalHTCondorCeConfig }}
         - name: {{ .Name }}
-          mountPath: {{ .Directory }}{{ if .File }}/{{ .File }}
+          mountPath: {{ .Directory | default "/etc/condor-ce/config.d" }}/{{ .File }}
           subPath: {{ .File }}
-          {{ end }}
         {{- end}}
         {{ end }}
         - name: bosco-ssh-private-key-volume
