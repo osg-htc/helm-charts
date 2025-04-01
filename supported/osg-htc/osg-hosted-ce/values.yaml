@@ -132,9 +132,9 @@ SciTokenRemoteUserMapping:
 # HTCondorCeConfig: |+
 #   ALL_DEBUG = D_ALWAYS:2 D_CAT
 
-# ExternalHTCondorCeConfig: 
-# - Name: k8s-hosted-ce-config
-#   File: 91-factory-whitelist.ini
+ExternalHTCondorCeConfig: 
+- Name: k8s-hosted-ce-config
+  File: 91-factory-whitelist.ini
 # - Name: ConfigTest
 #   Directory: /etc/condor-ce/test-config.d
 #   File: test.yaml
