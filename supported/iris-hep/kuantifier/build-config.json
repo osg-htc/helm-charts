@@ -1,5 +1,5 @@
 {
     "upstream":"https://github.com/rptaylor/kuantifier.git",
-    "ref": "v1.2.0",
+    "ref": "v1.3.0",
     "chart_dir": "chart"
 }
