@@ -124,8 +124,7 @@ spec:
         imagePullPolicy: Always
         volumeMounts:
         - name: osg-hosted-ce-{{ .Values.Instance }}-configuration
-          mountPath: /tmp/90-local.ini
-          subPath: 90-local.ini
+          mountPath: /tmp/etc/osg/config.d
         {{ if .Values.ExternalHTCondorCeConfig }}
         {{- range .Values.ExternalHTCondorCeConfig }}
         - name: {{ .Name }}
