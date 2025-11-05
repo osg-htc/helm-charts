@@ -34,6 +34,6 @@ Default host cert/key secret name.
 {{- if .Values.HostCredentials.HostCertKeySecret -}}
 {{- .Values.HostCredentials.HostCertKeySecret -}}
 {{- else -}}
-{{ include "osg-hosted-ce.name" . }}-cert
+{{ include "osg-hosted-ce.name" . }}-gencert
 {{- end -}}
 {{- end -}}
