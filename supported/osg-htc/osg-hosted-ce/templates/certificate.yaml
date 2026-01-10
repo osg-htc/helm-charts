@@ -17,11 +17,7 @@ spec:
   dnsNames:
     - {{ .Values.Networking.Hostname }}
   issuerRef:
-    {{- if .Values.HostCredentials.LetsEncryptStaging }}
-    name: letsencrypt-staging
-    {{- else }}
-    name: letsencrypt-prod-newchain
-    {{- end }}
-    kind: ClusterIssuer
+    name: {{ .Values.HostCredentials.CertificateIssuer }}
+    kind: {{ .Values.HostCredentials.CertificateIssuerKind }}
   secretName: {{ template "osg-hosted-ce.certname" . }}
 {{ end }}
