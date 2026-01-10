@@ -1,0 +1,23 @@
+{{ if .Values.HostCredentials.CreateCertificate }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+    app: {{ template "osg-hosted-ce.name" . }}
+    release: {{ .Release.Name }}
+    instance: {{ .Values.Instance }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  name: {{ template "osg-hosted-ce.certname" . }}
+spec:
+  commonName: {{ .Values.Networking.Hostname }}
+  usages:
+    - server auth
+    - client auth
+  dnsNames:
+    - {{ .Values.Networking.Hostname }}
+  issuerRef:
+    name: {{ .Values.HostCredentials.CertificateIssuer }}
+    kind: {{ .Values.HostCredentials.CertificateIssuerKind }}
+  secretName: {{ template "osg-hosted-ce.certname" . }}
+{{ end }}

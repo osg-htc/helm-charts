@@ -83,10 +83,10 @@ spec:
         configMap:
           name: osg-hosted-ce-{{ .Values.Instance }}-known-hosts
       {{ end }}
-      {{ if .Values.HostCredentials.HostCertKeySecret }}
+      {{ if or .Values.HostCredentials.HostCertKeySecret .Values.HostCredentials.CreateCertificate }}
       - name: osg-hosted-ce-hostcertkey-volume
         secret:
-          secretName: {{ .Values.HostCredentials.HostCertKeySecret }}
+          secretName: {{ template "osg-hosted-ce.certname" . }}
           items:
           - key: tls.crt
             path: hostcert.pem
@@ -156,7 +156,7 @@ spec:
         - name: lib-condor-ce
           mountPath: /var/lib/condor-ce
         {{ end }}
-        {{ if .Values.HostCredentials.HostCertKeySecret }}
+        {{ if or .Values.HostCredentials.HostCertKeySecret .Values.HostCredentials.CreateCertificate }}
         - name: osg-hosted-ce-hostcertkey-volume
           mountPath: /etc/grid-security-orig.d
         {{ end }}
