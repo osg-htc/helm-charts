@@ -111,10 +111,10 @@ spec:
         persistentVolumeClaim:
           claimName: {{ .Values.Persistence.LogVolume }}
       {{ end }}
-      {{ if .Values.CentralCollector.TokenSecret }}
+      {{ if .Values.CentralCollector.IDTokenSecret }}
       - name: central-collector-token
         secret:
-          secretName: {{ .Values.CentralCollector.TokenSecret }}
+          secretName: {{ .Values.CentralCollector.IDTokenSecret }}
           defaultMode: 0600
       {{ end }}
       {{ if eq .Values.Networking.ServiceType "HostNetwork" }}
@@ -182,7 +182,7 @@ spec:
           mountPath: /etc/condor-ce/mapfiles.d/50-scitokens.conf
           subPath: 50-scitokens.conf
         {{ end }}
-        {{ if .Values.CentralCollector.TokenSecret }}
+        {{ if .Values.CentralCollector.IDTokenSecret }}
         - name: central-collector-token
           mountPath: /etc/condor-ce/tokens.d/TOKEN
           subPath: TOKEN
