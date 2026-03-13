@@ -214,6 +214,11 @@ HostCredentials:
   # a default name will be used.
   HostCertKeySecret: null
 
+# Credential for authenticating to a view collector,
+# such as the OSPool Central Collector
+CentralCollector:
+  IDTokenSecret: null
+
 # Choose which tag to use for the specified containers
 ContainerTags:
   HostedCE: release
