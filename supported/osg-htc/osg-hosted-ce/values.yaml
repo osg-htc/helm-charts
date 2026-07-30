@@ -134,7 +134,7 @@ SciTokenRemoteUserMapping:
 
 ExternalHTCondorCeConfig: 
 - Name: k8s-hosted-ce-config
-  File: 91-factory-whitelist.ini
+  File: 91-common-settings.conf
 # - Name: ConfigTest
 #   Directory: /etc/condor-ce/test-config.d
 #   File: test.yaml
