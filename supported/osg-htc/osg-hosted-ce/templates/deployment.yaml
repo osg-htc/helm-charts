@@ -36,7 +36,12 @@ spec:
         {{ end }}
       {{ end }}
       volumes:
-      {{ if .Values.Persistence.IdtokenKeyVolume }}
+      {{ if .Values.Persistence.IdtokenKeySecret }}
+      - name: idtoken-key-condor-ce
+        secret:
+          secretName: {{ .Values.Persistence.IdtokenKeySecret }}
+          defaultMode: 0o600
+      {{ else if .Values.Persistence.IdtokenKeyVolume }}
       - name: idtoken-key-condor-ce
         persistentVolumeClaim:
           claimName: {{ .Values.Persistence.IdtokenKeyVolume }}
@@ -154,7 +159,11 @@ spec:
         - name: osg-hosted-ce-{{ .Values.Instance }}-htcondor-ce-configuration
           mountPath: /etc/condor-ce/config.d/90-instance.conf
           subPath: 90-instance.conf
-        {{ if .Values.Persistence.IdtokenKeyVolume }}
+        {{ if .Values.Persistence.IdtokenKeySecret }}
+        - name: idtoken-key-condor-ce
+          mountPath: /etc/condor-ce/passwords.d/POOL
+          subPath: POOL
+        {{ else if .Values.Persistence.IdtokenKeyVolume }}
         - name: idtoken-key-condor-ce
           mountPath: /etc/condor-ce/passwords.d/
         {{ end }}
