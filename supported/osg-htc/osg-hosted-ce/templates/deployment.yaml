@@ -42,7 +42,12 @@ spec:
         {{ end }}
       {{ end }}
       volumes:
-      {{ if .Values.Persistence.IdtokenKeyVolume }}
+      {{ if .Values.Persistence.IdtokenKeySecret }}
+      - name: idtoken-key-condor-ce
+        secret:
+          secretName: {{ .Values.Persistence.IdtokenKeySecret }}
+          defaultMode: 0o600
+      {{ else if .Values.Persistence.IdtokenKeyVolume }}
       - name: idtoken-key-condor-ce
         persistentVolumeClaim:
           claimName: {{ .Values.Persistence.IdtokenKeyVolume }}
@@ -132,6 +137,12 @@ spec:
         persistentVolumeClaim:
           claimName: {{ .Values.Persistence.LogVolume }}
       {{ end }}
+      {{ if .Values.CentralCollector.IDTokenSecret }}
+      - name: central-collector-token
+        secret:
+          secretName: {{ .Values.CentralCollector.IDTokenSecret }}
+          defaultMode: 0600
+      {{ end }}
       {{ if eq .Values.Networking.ServiceType "HostNetwork" }}
       hostNetwork: true
       {{ end }}
@@ -165,7 +176,11 @@ spec:
         - name: osg-hosted-ce-{{ .Values.Instance }}-htcondor-ce-configuration
           mountPath: /etc/condor-ce/config.d/90-instance.conf
           subPath: 90-instance.conf
-        {{ if .Values.Persistence.IdtokenKeyVolume }}
+        {{ if .Values.Persistence.IdtokenKeySecret }}
+        - name: idtoken-key-condor-ce
+          mountPath: /etc/condor-ce/passwords.d/POOL
+          subPath: POOL
+        {{ else if .Values.Persistence.IdtokenKeyVolume }}
         - name: idtoken-key-condor-ce
           mountPath: /etc/condor-ce/passwords.d/
         {{ end }}
@@ -197,6 +212,11 @@ spec:
         # Mount persistent storage for sshd host keys
         - name: sshd-shared-vol
           mountPath: /etc/condor-ce/sshd-sock/
+        {{ end }}
+        {{ if .Values.CentralCollector.IDTokenSecret }}
+        - name: central-collector-token
+          mountPath: /etc/condor-ce/tokens.d/TOKEN
+          subPath: TOKEN
         {{ end }}
         ports:
         - name: htcondor-ce

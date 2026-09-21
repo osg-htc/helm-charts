@@ -132,9 +132,9 @@ SciTokenRemoteUserMapping:
 # HTCondorCeConfig: |+
 #   ALL_DEBUG = D_ALWAYS:2 D_CAT
 
-ExternalHTCondorCeConfig:
-  - Name: k8s-hosted-ce-config
-    File: 91-factory-whitelist.ini
+ExternalHTCondorCeConfig: 
+- Name: k8s-hosted-ce-config
+  File: 91-common-settings.conf
 # - Name: ConfigTest
 #   Directory: /etc/condor-ce/test-config.d
 #   File: test.yaml
@@ -162,6 +162,8 @@ Persistence:
   IdtokenKeyVolume: null
   # /etc/ssh/
   SSHHostKeyVolume: null
+  # /etc/condor-ce/passwords.d/POOL
+  IdtokenKeySecret: null
 
 # Options to allow override of the bosco directory from arbitrary git repos
 # Bosco override dir lets you set what directory you want to put your bosco
@@ -246,6 +248,11 @@ HostCredentials:
 ContainerImages:
   HostedCE: hub.opensciencegrid.org/opensciencegrid/hosted-ce
   SSHD: hub.opensciencegrid.org/opensciencegrid/hosted-ce-sshd
+# Credential for authenticating to a view collector,
+# such as the OSPool Central Collector
+CentralCollector:
+  IDTokenSecret: null
+
 # Choose which tag to use for the specified containers
 ContainerTags:
   HostedCE: release
