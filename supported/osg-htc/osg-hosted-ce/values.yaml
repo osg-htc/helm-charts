@@ -159,8 +159,6 @@ Persistence:
   LibCondorCeVolume: null
   # /etc/condor-ce/passwords.d
   IdtokenKeyVolume: null
-  # /etc/ssh/
-  SSHHostKeyVolume: null
   # /etc/condor-ce/passwords.d/POOL
   IdtokenKeySecret: null
 
