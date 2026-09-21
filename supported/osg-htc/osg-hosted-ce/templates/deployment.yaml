@@ -19,7 +19,7 @@ spec:
     type: Recreate
   template:
     metadata:
-      labels:
+      labels: 
         app: {{ template "osg-hosted-ce.name" . }}
         release: {{ .Release.Name }}
         instance: {{ .Values.Instance }}
@@ -34,7 +34,7 @@ spec:
     spec:
       enableServiceLinks: false
       {{ if .Values.NodeSelection.Enabled }}
-      nodeSelector:
+      nodeSelector: 
         {{ if .Values.NodeSelection.NodeLabels}}
         {{- range $key, $value := .Values.NodeSelection.NodeLabels }}
         {{ $key }}: {{ $value }}
@@ -84,7 +84,7 @@ spec:
         configMap:
           name: osg-hosted-ce-{{ .Values.Instance }}-scitokens
       - name: bosco-ssh-private-key-volume
-        secret:
+        secret: 
           secretName: {{ .Values.RemoteCluster.PrivateKeySecret }}
           items:
           - key: bosco.key
@@ -129,7 +129,7 @@ spec:
           items:
           - key: git.key
             path: git.key
-            mode: 256
+            mode: 256 
       {{ end }}
       {{ end }}
       {{ if .Values.Persistence.LogVolume }}
@@ -148,7 +148,11 @@ spec:
       {{ end }}
       containers:
       - name: osg-hosted-ce
-        image: {{ .Values.ContainerImages.HostedCE }}:{{ .Values.ContainerTags.HostedCE }}
+        {{ if .Values.ContainerTags.HostedCE | default "" | contains "23-" }}
+        image: hub.opensciencegrid.org/opensciencegrid/hosted-ce:{{ .Values.ContainerTags.HostedCE }}
+        {{ else }}
+        image: hub.opensciencegrid.org/osg-htc/hosted-ce:{{ .Values.ContainerTags.HostedCE }}
+        {{ end }}
         imagePullPolicy: Always
         volumeMounts:
         - name: osg-hosted-ce-{{ .Values.Instance }}-configuration
@@ -232,7 +236,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        {{ else if eq .Values.Networking.ServiceType "LoadBalancer" }}
+        {{ else if eq .Values.Networking.ServiceType "LoadBalancer" }} 
         - name: _CONDOR_NETWORK_HOSTNAME
           value: {{ .Values.Networking.Hostname }}
         - name: CE_HOSTNAME
@@ -291,7 +295,7 @@ spec:
       initContainers:
       {{ if .Values.HostCredentials.EnableSSHD }}
       - name: osg-hosted-ce-sshd
-        image: {{ .Values.ContainerImages.SSHD }}:{{ .Values.ContainerTags.SSHD }}
+        image: hub.opensciencegrid.org/osg-htc/hosted-ce-sshd:{{ .Values.ContainerTags.SSHD }}
         imagePullPolicy: Always
         restartPolicy: Always
         env:
@@ -326,7 +330,7 @@ spec:
       {{ end }}
       {{ if and .Values.HostCredentials.EnableSSHD .Values.HostCredentials.AuthorizedKeys.Secondary }}
       - name: osg-hosted-ce-secondary-sshd
-        image: {{ .Values.ContainerImages.SSHD }}:{{ .Values.ContainerTags.SSHD }}
+        image: hub.opensciencegrid.org/osg-htc/hosted-ce-sshd:{{ .Values.ContainerTags.SSHD }}
         imagePullPolicy: Always
         restartPolicy: Always
         env:

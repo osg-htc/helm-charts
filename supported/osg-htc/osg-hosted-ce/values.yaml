@@ -28,7 +28,6 @@ RemoteCluster:
   #    login04.osgconnect.net ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCqsciY/FmcH6yedW7DxbTwLjkwlgVcbcG43QwdaSvMuN5EHAeLRH2P6ig3H6s/4hZqJn7AU2oNsoIqjZZ8iHqGyiTB9r70Aovt9PUuQXw5qHvYiIoyw49/waJ+yzu4+UD3qfnxeHuRw5EOaXia72MNJJ4lBMoS6iw1JveFJY4rBgKZ7nta1eAGGfHADsf5lfhlIXnJPN050X6zcUjqEEKXjdUkFa3wDiVbFEIESCMwi1b6Q1OXGGFwuSNse1X38CREBzQ+NjOB97o70chZoh2jZ2O3iZZZbujYcDzpxF3RxmewFC3pDmkoOpJrfV2W58n1KdJJnyvjlqEZGXCXcAlB
   #    login04.osgconnect.net ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBCnySArMSVd0O3UniYN4vX3a/d9d9mEMnrf2z1S900t0GrxVazVGu3ObeLfWwYRc3qFXNRPGh3mKcz5QVG6gcm4=
   #    login04.osgconnect.net ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJBW6weAaFSdLYksn4vIvqt4+geNVQ/bUvp71kTeQsKV
-
   # Secret with 'bosco.key' containing the SSH key to access LoginHost:
   PrivateKeySecret: lincolnb-bosco
   # Secret containing a signed certificate (required by some sites)
@@ -63,13 +62,13 @@ RemoteCluster:
 
 Networking:
   ServiceType: "LoadBalancer"
-  # The hostname that the CE should use.
+  # The hostname that the CE should use. 
   # Appropriate A and PTR DNS records must exist.
   Hostname: ""
-  # The preferred IP address which should be requested from the LoadBalancer.
-  # This may be left as null to express no preference.
+  # The preferred IP address which should be requested from the LoadBalancer. 
+  # This may be left as null to express no preference. 
   # Setting this may be useful when redeploying a CE in order to try to get
-  # back the same IP address that was used previously.
+  # back the same IP address that was used previously. 
   RequestIP: null
 
 # SCITOKENS url[,subject] to user mapping
@@ -80,49 +79,49 @@ Networking:
 # To change the remote user for a given VO, change the value (e.g. osg01)
 
 SciTokenRemoteUserMapping:
-  # https://github.com/opensciencegrid/topology/blob/master/virtual-organizations/OSG.yaml
-  - "https://scitokens.org/osg-connect": osg01
-  # https://github.com/opensciencegrid/topology/blob/master/virtual-organizations/GLOW.yaml
-  - "https://chtc.cs.wisc.edu": osg02
-  ## HCC ##
-  - "https://scitokens.org/hcc": osg03
-  ## CMS ##
-  # CMS pilots:
-  - "https://cms-auth.web.cern.ch/,bad55f4e-602c-4e8d-a5c5-bd8ffb762113": osg04
-  # SAM/ETF tests:
-  - "https://cms-auth.web.cern.ch/,08ca855e-d715-410e-a6ff-ad77306e1763": osg04
-  # CMS ITB pilots:
-  - "https://cms-auth.web.cern.ch/,490a9a36-0268-4070-8813-65af031be5a3": osg04
-  # CMS LOCAL pilots:
-  - "https://cms-auth.web.cern.ch/,07f75a9a-bb78-4735-938b-7e61b2b62d5c": osg04
-  # CMS ITB LOCAL pilots:
-  - "https://cms-auth.web.cern.ch/,efbed8c1-f9a7-4063-92f7-f89c04ce04a3": osg04
-  # USCMS LOCAL pilots:
-  - "https://cms-auth.web.cern.ch/,091b3617-722c-4720-bdb1-81e4f5ec96e0": osg04
-  ## LIGO ##
-  - "https://scitokens.org/ligo": osg07
-  ## Fermilab ##
-  # Fermilab pilots:
-  - "https://cilogon.org/fermilab,fermilabpilot@fnal.gov": osg05
-  ## ATLAS ##
-  # ATLAS production:
-  - "https://atlas-auth.web.cern.ch/,7dee38a3-6ab8-4fe2-9e4c-58039c21d817": osg09
-  # ATLAS SAM/ETF:
-  - "https://atlas-auth.web.cern.ch/,5c5d2a4d-9177-3efa-912f-1b4e5c9fb660": osg09
-  # ATLAS analysis:
-  - "https://atlas-auth.web.cern.ch/,750e9609-485a-4ed4-bf16-d5cc46c71024": osg09
-  ## Gluex ##
-  - "https://zeus.phys.uconn.edu": osg10
-  ## DUNE ##
-  # DUNE pilots:
-  - "https://cilogon.org/dune,dunepilot@fnal.gov": osg11
-  ## IceCube ##
-  - "https://chtc.cs.wisc.edu/icecube": osg12
-  ## JLab ##
-  # CLAS12 #
-  - "https://scicomp.jlab.org/scitokens/clas12": osg14
-  # EIC #
-  - "https://scicomp.jlab.org/scitokens/eic": osg14
+    # https://github.com/opensciencegrid/topology/blob/master/virtual-organizations/OSG.yaml
+    - "https://scitokens.org/osg-connect": osg01
+    # https://github.com/opensciencegrid/topology/blob/master/virtual-organizations/GLOW.yaml
+    - "https://chtc.cs.wisc.edu": osg02
+    ## HCC ##
+    - "https://scitokens.org/hcc": osg03
+    ## CMS ##
+    # CMS pilots:
+    - "https://cms-auth.web.cern.ch/,bad55f4e-602c-4e8d-a5c5-bd8ffb762113": osg04
+    # SAM/ETF tests:
+    - "https://cms-auth.web.cern.ch/,08ca855e-d715-410e-a6ff-ad77306e1763": osg04
+    # CMS ITB pilots:
+    - "https://cms-auth.web.cern.ch/,490a9a36-0268-4070-8813-65af031be5a3": osg04
+    # CMS LOCAL pilots:
+    - "https://cms-auth.web.cern.ch/,07f75a9a-bb78-4735-938b-7e61b2b62d5c": osg04
+    # CMS ITB LOCAL pilots:
+    - "https://cms-auth.web.cern.ch/,efbed8c1-f9a7-4063-92f7-f89c04ce04a3": osg04
+    # USCMS LOCAL pilots:
+    - "https://cms-auth.web.cern.ch/,091b3617-722c-4720-bdb1-81e4f5ec96e0": osg04
+    ## LIGO ##
+    - "https://scitokens.org/ligo": osg07
+    ## Fermilab ##
+    # Fermilab pilots:
+    - "https://cilogon.org/fermilab,fermilabpilot@fnal.gov": osg05
+    ## ATLAS ##
+    # ATLAS production:
+    - "https://atlas-auth.web.cern.ch/,7dee38a3-6ab8-4fe2-9e4c-58039c21d817": osg09
+    # ATLAS SAM/ETF:
+    - "https://atlas-auth.web.cern.ch/,5c5d2a4d-9177-3efa-912f-1b4e5c9fb660": osg09
+    # ATLAS analysis:
+    - "https://atlas-auth.web.cern.ch/,750e9609-485a-4ed4-bf16-d5cc46c71024": osg09
+    ## Gluex ##
+    - "https://zeus.phys.uconn.edu": osg10
+    ## DUNE ##
+    # DUNE pilots:
+    - "https://cilogon.org/dune,dunepilot@fnal.gov": osg11
+    ## IceCube ##
+    - "https://chtc.cs.wisc.edu/icecube": osg12
+    ## JLab ##
+    # CLAS12 #
+    - "https://scicomp.jlab.org/scitokens/clas12": osg14
+    # EIC #
+    - "https://scicomp.jlab.org/scitokens/eic": osg14
 
 ##########################
 # OPTIONAL CONFIGURATION #
@@ -155,7 +154,7 @@ ExternalHTCondorCeConfig:
 # Enable persistence to HostedCE files by creating corresponding Volumes
 Persistence:
   # /var/log/condor-ce
-  LogVolume: null
+  LogVolume: null 
   # /var/lib/condor-ce
   LibCondorCeVolume: null
   # /etc/condor-ce/passwords.d
@@ -244,10 +243,6 @@ HostCredentials:
     Primary: ""
     Secondary: ""
 
-# Choose which image to use for the specified containers
-ContainerImages:
-  HostedCE: hub.opensciencegrid.org/opensciencegrid/hosted-ce
-  SSHD: hub.opensciencegrid.org/opensciencegrid/hosted-ce-sshd
 # Credential for authenticating to a view collector,
 # such as the OSPool Central Collector
 CentralCollector:
