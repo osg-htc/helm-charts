@@ -286,6 +286,10 @@ spec:
         - name: BOSCO_DIRECTORY
           value: {{ .Values.BoscoOverrides.BoscoOverrideDir | default .Values.Topology.Resource }}
         {{ end }}
+        {{ if .Values.HostCredentials.EnableSSHD }}
+        - name: USE_SSH_AGENT_FORWARD
+          value: "true"
+        {{ end }}
         {{  if not .Values.Persistence.LibCondorCeVolume }}
         lifecycle:
           preStop:
