@@ -25,6 +25,12 @@ spec:
         instance: {{ .Values.Instance }}
         app.kubernetes.io/part-of: {{ .Chart.Name }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+        {{ if .Values.HostCredentials.EnableSSHD }}
+        osg-htc.org/primary-key: {{ .Values.HostCredentials.AuthorizedKeys.Primary }}
+        {{ if .Values.HostCredentials.AuthorizedKeys.Secondary }}
+        osg-htc.org/secondary-key: {{ .Values.HostCredentials.AuthorizedKeys.Secondary }}
+        {{ end }}
+        {{ end }}
     spec:
       enableServiceLinks: false
       {{ if .Values.NodeSelection.Enabled }}
@@ -50,6 +56,16 @@ spec:
       - name: lib-condor-ce
         persistentVolumeClaim:
           claimName: {{ .Values.Persistence.LibCondorCeVolume }}
+      {{ end }}
+      {{ if .Values.HostCredentials.EnableSSHD }}
+      - name: ssh-hostkey-condor-ce
+        secret:
+          secretName: {{ .Values.HostCredentials.HostSSHKeySecret | default (printf "%s-ssh-host-key" .Values.Instance) }}
+      - name: ssh-host-pubkey-condor-ce
+        configMap:
+          name: {{ .Values.HostCredentials.HostSSHPubKeyConfigMap | default (printf "%s-ssh-host-pubkey" .Values.Instance) }}
+      - name: sshd-shared-vol
+        emptyDir: {}
       {{ end }}
       {{ if .Values.ExternalHTCondorCeConfig }}
       {{- range .Values.ExternalHTCondorCeConfig }}
@@ -87,6 +103,11 @@ spec:
       - name: ssh-known-hosts
         configMap:
           name: osg-hosted-ce-{{ .Values.Instance }}-known-hosts
+      {{ end }}
+      {{ if .Values.HostCredentials.EnableSSHD }}
+      - name: ssh-authorized-keys
+        configMap:
+          name: {{ .Values.HostCredentials.AuthorizedPublicKeysConfigMap }}
       {{ end }}
       {{ if or .Values.HostCredentials.HostCertKeySecret .Values.HostCredentials.CreateCertificate }}
       - name: osg-hosted-ce-hostcertkey-volume
@@ -191,6 +212,11 @@ spec:
           mountPath: /etc/condor-ce/mapfiles.d/50-scitokens.conf
           subPath: 50-scitokens.conf
         {{ end }}
+        {{ if .Values.HostCredentials.EnableSSHD }}
+        # Mount persistent storage for sshd host keys
+        - name: sshd-shared-vol
+          mountPath: /etc/condor-ce/sshd-sock/
+        {{ end }}
         {{ if .Values.CentralCollector.IDTokenSecret }}
         - name: central-collector-token
           mountPath: /etc/condor-ce/tokens.d/TOKEN
@@ -260,9 +286,86 @@ spec:
         - name: BOSCO_DIRECTORY
           value: {{ .Values.BoscoOverrides.BoscoOverrideDir | default .Values.Topology.Resource }}
         {{ end }}
+        {{ if .Values.HostCredentials.EnableSSHD }}
+        - name: USE_SSH_AGENT_FORWARD
+          value: "true"
+        {{ end }}
         {{  if not .Values.Persistence.LibCondorCeVolume }}
         lifecycle:
           preStop:
             exec:
               command: ["/usr/local/bin/drain-ce.sh"]
         {{ end }}
+      initContainers:
+      {{ if .Values.HostCredentials.EnableSSHD }}
+      - name: osg-hosted-ce-sshd
+        image: hub.opensciencegrid.org/osg-htc/hosted-ce-sshd:{{ .Values.ContainerTags.SSHD }}
+        imagePullPolicy: Always
+        restartPolicy: Always
+        env:
+        - name: CE_INSTANCE
+          value: {{ .Values.Instance }}
+        - name: AUTHORIZED_KEY
+          value: {{ .Values.HostCredentials.AuthorizedKeys.Primary }}
+
+        volumeMounts:
+        # Shared volume for ssh_auth_sock
+        - name: sshd-shared-vol
+          mountPath: /tmp/
+
+        # Mount path for sshd host private key
+        - name: ssh-hostkey-condor-ce
+          mountPath: /etc/ssh.orig/ssh_host_rsa_key
+          subPath: ssh_host_rsa_key
+
+        # Mount for sshd host public key
+        - name: ssh-host-pubkey-condor-ce
+          mountPath: /etc/ssh.orig/ssh_host_rsa_key.pub
+          subPath: ssh_host_rsa_key.pub
+
+        # Mount for ssh client authorized_key
+        - name: ssh-authorized-keys
+          mountPath: /etc/ssh.orig/key-mappings.yaml
+          subPath: key-mappings.yaml
+        ports:
+        - name: sshd
+          containerPort: 22
+          protocol: TCP
+      {{ end }}
+      {{ if and .Values.HostCredentials.EnableSSHD .Values.HostCredentials.AuthorizedKeys.Secondary }}
+      - name: osg-hosted-ce-secondary-sshd
+        image: hub.opensciencegrid.org/osg-htc/hosted-ce-sshd:{{ .Values.ContainerTags.SSHD }}
+        imagePullPolicy: Always
+        restartPolicy: Always
+        env:
+        - name: CE_INSTANCE
+          value: {{ .Values.Instance }}
+        - name: AUTHORIZED_KEY
+          value: {{ .Values.HostCredentials.AuthorizedKeys.Secondary }}
+        - name: SSHD_PORT
+          value: "23"
+
+        volumeMounts:
+        # Shared volume for ssh_auth_sock
+        - name: sshd-shared-vol
+          mountPath: /tmp/
+
+        # Mount path for sshd host private key
+        - name: ssh-hostkey-condor-ce
+          mountPath: /etc/ssh.orig/ssh_host_rsa_key
+          subPath: ssh_host_rsa_key
+
+        # Mount for sshd host public key
+        - name: ssh-host-pubkey-condor-ce
+          mountPath: /etc/ssh.orig/ssh_host_rsa_key.pub
+          subPath: ssh_host_rsa_key.pub
+
+        # Mount for ssh client authorized_key
+        - name: ssh-authorized-keys
+          mountPath: /etc/ssh.orig/key-mappings.yaml
+          subPath: key-mappings.yaml
+        ports:
+        - name: sshd-backup
+          containerPort: 23
+          protocol: TCP
+      {{ end }}

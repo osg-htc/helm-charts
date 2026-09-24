@@ -201,3 +201,20 @@ data:
   ssh_known_hosts: |+
 {{ .Values.RemoteCluster.KnownHosts | indent 4}}
 {{ end }}
+
+{{ if .Values.RemoteCluster.AuthorizedKeys}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: osg-hosted-ce-{{ .Values.Instance }}-authorized-keys
+  labels:
+    app: osg-hosted-ce
+    instance: {{ .Values.Instance }}
+    release: {{ .Release.Name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  ssh_authorized_keys: |+
+{{ .Values.RemoteCluster.AuthorizedKeys | indent 4}}
+{{ end }}

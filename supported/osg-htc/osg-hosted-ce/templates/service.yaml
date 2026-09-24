@@ -22,6 +22,12 @@ spec:
     port: 9619
     targetPort: htcondor-ce
     protocol: TCP
+  {{ if .Values.HostCredentials.HostSSHKeySecret }}
+  - name: ssh
+    port: 22
+    targetPort: ssh
+    protocol: TCP
+  {{ end }}
   {{ if .Values.Networking.RequestIP }}
   loadBalancerIP: {{ .Values.Networking.RequestIP }}
   {{ end }}

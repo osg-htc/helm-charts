@@ -71,7 +71,6 @@ Networking:
   # back the same IP address that was used previously. 
   RequestIP: null
 
-
 # SCITOKENS url[,subject] to user mapping
 # This list controls the VOs accepted by the CE and the users they are
 # mapped to on the remote site.
@@ -216,6 +215,32 @@ HostCredentials:
   # a default name will be used.
   HostCertKeySecret: null
 
+  # Whether to enable the SSH sidecar and associated configuration for allowing
+  # SSH access to the CE host.
+  EnableSSHD: false
+
+  # Name of the secret containing an SSH host key for this CE.
+  # Enabling this value will create a sidecar container that runs SSHD and
+  # forwards any incoming SSH connections to the main CE container via an
+  # SSH_AUTH_SOCK in a shared volume.
+  # Should contain value "ssh_host_rsa_key"
+  HostSSHKeySecret: null
+
+  # The public half of the SSH host key # referenced in HostSSHKeySecret.
+  # This must be stored separately as our agent-forwarding service has
+  # ConfigMap read access but not Secret read access.
+  HostSSHPubKeyConfigMap: null
+
+  # ConfigMap containing a mapping of key name -> public key pairs
+  # Shared among all CEs in a namespace
+  AuthorizedPublicKeysConfigMap: hosted-ce-key-mappings
+  
+  # List of key names to use for SSH access to the CE host.
+  # Supports a primary and secondary key
+  AuthorizedKeys:
+    Primary: ""
+    Secondary: ""
+
 # Credential for authenticating to a view collector,
 # such as the OSPool Central Collector
 CentralCollector:
@@ -224,6 +249,7 @@ CentralCollector:
 # Choose which tag to use for the specified containers
 ContainerTags:
   HostedCE: release
+  SSHD: release
 
 Debug:
   # When 'ContinuOnError: true', ignore fatal errors on startup
